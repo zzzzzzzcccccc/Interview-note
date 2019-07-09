@@ -188,6 +188,42 @@ console.log(5);
 * 输出顺序 1 -> 2 -> 4 -> 5 -> 3
 **/
 ```
+* 4个混合使用 (头条面试题)
+```js
+async function async1() {
+  console.log(1);
+  await async2();
+  console.log(2);
+}
+
+async function async2() {
+  console.log(3);
+}
+
+console.log(4);
+
+setTimeout(() =>{
+  console.log(5)
+}, 0);
+
+async1();
+
+new Promise((resolve) => {
+  console.log(6);
+  resolve();
+}).then(() => {
+  console.log(7);
+});
+console.log(8);
+
+/**
+* 输出顺序 4 -> 1 -> 3 -> 6 -> 8 -> 2 -> 7 -> 5
+**/
+```
+* 在js中任务为同步任务和异步任务，不同任务在主线程上执行，而异步任务只要有了执行结果就会放入任务队列中，一旦主线程任务执行完，系统就会读取任务队列将异步任务添加到可执行任务队列中，开始执行。任务执行流程图如下:
+![](./lib/image/1.jpeg)
+
+* Promise异步是提现在then和catch的，所以在then之前的是同步执行的，await是等待而在任务队列里是让出一个线程的意思await后的同步任务会先执行，但是await的任务会在任务队列里去了
 
 ## 8.资源预加载，用于活动页面，游戏开始前加载
 ```js
@@ -218,4 +254,6 @@ for (let i = 0; i < imgLen; i++) {
   });
 }
 ```
+
+## 9.
 
