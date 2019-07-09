@@ -12,7 +12,7 @@
   parseInt('2', 1); // 1 是1进制最大值为1 无法计算返回 NaN
   parseInt('3', 2); // 2 是2进制最大值为2 无法计算返回 NaN
 ```
-
+* 所以答案是[1, NaN, NaN],不是['1', '2', '3']
 ## 3.什么是防抖和节流？有什么区别？如何实现？
 * 防抖：动作绑定事件，动作发生后一定时间后触发事件，在这段时间内，如果该动作又发生，则重新等待一定时间再触发事件
 ```js
@@ -150,4 +150,72 @@ Bar = 'Baz' // 正常
 ```
 
 ## 7.setTimeout、Promise、Async/Await 的区别
+* 此题需要基础非常优秀，不然太容易混淆，我个人理解是宏观上的任务列队与微观任务列队的区别
+* 例如经常会考的这样的题目问执行console的顺序
+```js
+console.log(1);
+const promise = new Promise((resolve) => {
+  console.log(2);
+  resolve();
+  console.log(3);
+}).then(() => {
+  console.log(4);
+})
+setTimeout(() => {
+  console.log(5);
+}, 0)
+console.log(6)
+
+/**
+* 输出顺序 1 -> 2 -> 3 -> 6 -> 4 -> 5
+**/
+```
+* 又例如关于async/await的
+```js
+async function function1() {
+  console.log(2);
+  await function2();
+  console.log(3)
+}
+async function function2() {
+  console.log(4);
+}
+console.log(1);
+function1();
+console.log(5);
+
+/**
+* 输出顺序 1 -> 2 -> 4 -> 5 -> 3
+**/
+```
+
+## 8.资源预加载，用于活动页面，游戏开始前加载
+```js
+/**
+* 单张图片加载
+* @param src
+* @returns {Promise<any>}
+*/
+function loadImg(src='') {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = src;
+    img.onload = () => {
+      resolve(src)
+    };
+    img.onerror = () => {
+      reject()
+    }
+  })
+}
+const imgArray = ['http://pic37.nipic.com/20140113/8800276_184927469000_2.png', 'http://pic25.nipic.com/20121205/10197997_003647426000_2.jpg', 'http://img.redocn.com/sheji/20141219/zhongguofengdaodeliyizhanbanzhijing_3744115.jpg', 'http://pic40.nipic.com/20140331/9469669_142840860000_2.jpg', 'http://pic39.nipic.com/20140321/18063302_210604412116_2.jpg'];
+const imgLen = imgArray.length;
+let loadSuccessCount = 0;
+for (let i = 0; i < imgLen; i++) {
+  loadImg(imgArray[i]).then(() => {
+    loadSuccessCount++;
+    console.log(`当前加载到${loadSuccessCount}张图片，当前进度${(loadSuccessCount / imgLen * 100).toFixed(2)}%`);
+  });
+}
+```
 
