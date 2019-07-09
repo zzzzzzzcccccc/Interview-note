@@ -255,5 +255,42 @@ for (let i = 0; i < imgLen; i++) {
 }
 ```
 
-## 9.
+## 9.算法题
+> 已知如下数组: [ [1, 2, 2], [3, 4, 5, 5], [6, 7, 8, 9, [11, 12, [12, 13, [14] ] ] ], 10]; 编写一个函数把数组扁皮化，最终得到一个不重复且升序的数组;
+```js
+// 解法1 递归
+function formatArray1(realArray) {
+  let nowArr = [];
+  function genArray(arr) {
+    if (!Array.isArray(arr)) {
+      nowArr.push(arr);
+    }
+    let len = arr.length;
+    for (let i = 0; i < len; i++) {
+      genArray(arr[i]);
+    }
+  }
+  genArray(realArray);
+  
+  return Array.from(new Set(nowArr)).sort((a, b) => a - b);
+}
+// 解法2 es6
+function formatArray2(realArray) {
+  return Array.from(new Set(realArray.flat(Infinity))).sort((a, b) => a - b);
+}
+// 解法3 论坛上找的很秀
+function formatArray3(realArray) {
+  return realArray.toString().split(',').sort((a, b) => a - b).map(Number)
+}
+```
+
+## 10.如何实现一个new方法
+```js
+function _new(fn, ...arg) {
+  const obj = Object.create(fn.prototype);
+  const ret = fn.apply(obj, arg);
+  
+  return ret instanceof Object ? ret : obj;
+}
+```
 
