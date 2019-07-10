@@ -409,4 +409,51 @@ class Example extends React.Component {
   2. 没有时间回溯能力，因为数据只有一份引用
   3. 没有这样的烦恼，数据流动由函数调用一气呵成，便于调试
   4. 虽然他在报错的时候没有回溯，但是配合typescript一起使用则大大减少了报错的可能性, redux对typescript支持不太友好
-  5. 它颗粒度较细，没有redux的中间件的思想，所以没有action分发，直接到view 
+  5. 它颗粒度较细，没有redux的中间件的思想，所以没有action分发，直接到view
+
+## 16.什么是BFC,请解释一下它
+  1. BFC是web里盒模型的css渲染模式，是指独立的一个渲染区或是一个独立的隔离独立容器
+  2. B -> block、F -> formatting、C -> context
+  3. 当display: block、list-item、table元素会产生bfc
+  4. 什么情况下会触发BFC
+    1. float且不为none
+    2. position:absolute || fixed
+    3. display: inline-block || table-cell || table-caption || flex || inline-flex
+    4. overflow属性不为visible
+  5. BFC元素的特点
+    1. 盒子从顶端一个个排列
+    2. 盒子的垂直方向由margin决定，同一个BFC的盒子margin会重叠
+    3. 每个盒子左边边缘会碰到父元素，父元素的border在padding和margin都为0时，会重叠
+    4. 如果父元素没有设定高度，但盒子里有子盒子有浮动元素，那么BFC在计算高度时候，会算上子盒子浮动的高度
+```html
+<style>
+.father {
+    width: 150px;
+    border: 1px solid red;
+}
+
+.son1, .son2 {
+    width: 50px;
+    height: 50px;
+    background-color: pink;
+}
+
+.son2 {
+    background-color: purple;
+}
+</style>
+<div class="father">
+     <div class="son1"></div>
+     <div class="son2"></div>
+</div>
+```   
+正常情况下的样子是上下块撑开父元素的高度 
+![](./lib/image/2.png)
+
+当给两个子元素设置了float属性之后，子元素不再占据父元素的空间，此时父元素的高度就为0
+![](./lib/image/3.png)
+
+
+当设置父元素bfc后，此时就清除了子元素浮动带来的影响，什么影响呢，就是不撑开父元素的高度的影响，那么父元素的高度就是子元素的高度
+为父元素添加overflow:hidden;
+![](./lib/image/4.jpg)
