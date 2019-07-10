@@ -264,6 +264,7 @@ function formatArray1(realArray) {
   function genArray(arr) {
     if (!Array.isArray(arr)) {
       nowArr.push(arr);
+      return;
     }
     let len = arr.length;
     for (let i = 0; i < len; i++) {
@@ -294,3 +295,118 @@ function _new(fn, ...arg) {
 }
 ```
 
+## 11.Vue 和 React 的主要生命周期
+* Vue
+  1. new Vue() 创建一个vue实例
+  2. beforeCreate 实例创建前
+  3. created 实例已被创建
+  4. beforeMount 实例已创建渲染虚拟dom前
+  5. mounted 虚拟dom渲染完毕
+  6. beforeUpdate data数据变化更新前
+  7. updated data数据变化更新完毕
+  8. beforeDestory 实例销毁前
+  9. destory 实例已销毁
+* React
+  1. getDefaultProps 载入默认的props
+  2. getInitialState 载入state
+  3. componentWillMount 虚拟dom渲染前
+  4. render 渲染
+  5. componentDidMount 虚拟dom渲染完毕
+  6. props变化触发componentWillReceiveProps再触发shouldComponentUpdate
+  7. setState触发shouldComponentUpdate
+  8. shouldComponentUpdate返回true则触发componentWillUpdate -> render -> componentDidUpdate
+  9. componentWillUnmount 组件销毁前
+
+## 12.TCP 三次握手与四次握手
+* 三次握手
+  1. 你好我是A
+  2. 收到，我是B
+  3. 那么我们连接了
+* 四次握手
+  1. 你好我是A, 我要挂了
+  2. 收到我是B, 请你等等我还有一些数据没有发给你
+  3. 收到，我随时准备挂了
+  4. 给你了，你可以挂了
+  
+## 13.React setState 笔试题，下面的代码输出什么？ 
+```js
+class Example extends React.Component {
+    constructor() {
+      super();
+      this.state = {
+        val: 0
+      };
+    }
+    
+    componentDidMount() {
+      this.setState({val: this.state.val + 1});
+      console.log(this.state.val);    // 第 1 次 log
+  
+      this.setState({val: this.state.val + 1});
+      console.log(this.state.val);    // 第 2 次 log
+  
+      setTimeout(() => {
+        this.setState({val: this.state.val + 1});
+        console.log(this.state.val);  // 第 3 次 log
+  
+        this.setState({val: this.state.val + 1});
+        console.log(this.state.val);  // 第 4 次 log
+      }, 0);
+    }
+  
+    render() {
+      return null;
+    }
+  };
+
+/**
+* 输出顺序 0 -> 0 -> 2 -> 3
+*/
+```
+* 第一次和第二次都是在 react 自身生命周期内，触发时 isBatchingUpdates 为 true，所以并不会直接执行更新 state，而是加入了 dirtyComponents，所以打印时获取的都是更新前的状态 0。
+
+* 两次 setState 时，获取到 this.state.val 都是 0，所以执行时都是将 0 设置成 1，在 react 内部会被合并掉，只执行一次。设置完成后 state.val 值为 1。
+
+* setTimeout 中的代码，触发时 isBatchingUpdates 为 false，所以能够直接进行更新，所以连着输出 2，3。
+
+## 14.重绘和回流，如何优化它们
+* 浏览器渲染机制
+  1. 浏览器是流式布局模型
+  2. 浏览器会被html解析成dom，把css解析成cssom，dom和cssom组合形成了renderTree
+  3. 有了renderTree就能遍历节点，计算它们在页面上的位置，最后绘制到页面上
+  4. 在这种布局中，一般的dom遍历一次就能完成，但是table可能需要遍历多次, 所以table元素慎用
+* 重绘：由于dom节点几何属性属性发生变化、由于样式发生变化而改变而不会影响布局的，称为重绘。重绘的代价是高昂的，因为浏览器必须验证dom树上的其他节点的可见性
+* 回流: 布局、几何属性需要改变称为回流。回流是影响浏览器性能的关键元素，因为涉及到部分页面、整个页面的布局更新。一个dom元素的回流可能导致其他所有子元素以及其中紧随其后的节点、祖元素的随后回流。
+* 回流必定会触发重绘，重绘不一定引发回流
+* 以下属性改变会触发浏览器强制更新
+  1. offsetTop、offsetLeft、offsetWidth、offsetHeight
+  2. scrollTop、scrollLeft、scrollWidth、scrollHeight
+  3. clientTop、clientLeft、clientWidth、clientHeight
+  4. width、height
+  5. getComputedStyle()
+  6. getBoundingClientRect()
+* 减少重绘与回流
+  1. 使用 transform 替代 top
+  2. 使用 visibility 替代 display: none
+  3. table布局慎用
+  4. 尽量在dom数的末端更改class，这样触发回流的dom能降到最少
+  5. css选择器结构尽量简单，不要使用css表达式
+  6. 动画效果运用在带有 position: absolute || fixed 时候可以使用requestAnimationFrame来执行动画
+  7. 将频繁重绘或回流的节点设置成视图层，视图层能够阻止该节点渲染行为影响到别的节点。例如will-change、video、ifame等标签，浏览器自动视为视图层
+  8. css3带有GPU的硬件加速，可以尽量使用css3替代以前的css
+  9. 不要使用js频繁读取同一个dom，尽量用一个变量存储起来
+  10. 对具有复杂动画的dom使用绝对定位，使它脱离文档流，否则会引起父元素的回流
+  11. 频繁修改操作dom，创建一个documentFragment，最后在添加到文档上
+
+## 15. Vuex、mobx、redux
+* Vuex和redux思想是基本一致
+  1. 统一维护应用状态
+  2. 状态只有一个可信数据来源
+  3. 操作更新方式同意，并且可控，通常以action方式提供更新状态途径
+  4. Dispatcher接收所有的action，触发view
+* mobx思想与上面两者就有区别了
+  1. 他是面向对象的思想，而上面两种是面向函数的
+  2. 没有时间回溯能力，因为数据只有一份引用
+  3. 没有这样的烦恼，数据流动由函数调用一气呵成，便于调试
+  4. 虽然他在报错的时候没有回溯，但是配合typescript一起使用则大大减少了报错的可能性, redux对typescript支持不太友好
+  5. 它颗粒度较细，没有redux的中间件的思想，所以没有action分发，直接到view 
