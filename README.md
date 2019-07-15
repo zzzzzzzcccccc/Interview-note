@@ -459,3 +459,341 @@ class Example extends React.Component {
 当设置父元素bfc后，此时就清除了子元素浮动带来的影响，什么影响呢，就是不撑开父元素的高度的影响，那么父元素的高度就是子元素的高度为父元素添加overflow:hidden;
 
 ![](./lib/image/4.jpg)
+
+## 17.介绍下观察者模式和订阅-发布模式的区别，各自适用于什么场景
+* 观察模式：一个被观察的对象的状态发现变化，则会通知所有依赖它的对象
+
+  例子：去餐厅吃饭时候，经常遇到人很多的情况，餐厅会给你发一个号码让你排队，餐厅则被视为观察者，一旦餐厅有位置了，则会通知所有排队的客人。
+```js
+class Subject {
+  constructor() {
+    this.observers = [];
+  }
+  
+  addObserver = (obj) => this.observers.push(obj);
+  
+  notify = () => {
+    for (let obj of this.observers) {
+      if (obj.update && typeof obj.update === 'function') {
+        obj.update();
+      }
+    }
+  }
+}
+const subject = new Subject();
+const subA = {
+  update: () => {
+    console.log('update subA')
+  }
+};
+const subB = {
+  update: () => {
+    console.log('update subB')
+  }
+};
+// 添加观察者
+subject.addObserver(subA);
+subject.addObserver(subB);
+// 通知所有观察者
+subject.notify();
+```
+* 发布模式：发布者状态更新时，发布某些类型的通知，只通知订阅了相关类型的订阅者，发布者和订阅者是没有直接关联的
+
+  例子：去餐厅吃饭时候，经常遇到人很多的情况，餐厅会给你发一个号码让你排队(订阅了)，我们在排队过程中干其他的事情去了，到我们的号码的时候餐厅则会通知我们去就餐
+```js
+class Publish {
+  constructor() {
+    this.topics = {};
+  }
+ 
+  subscribe = (type, fn) => { // 订阅
+    if (!this.topics[type]) {
+      this.topics[type] = [];
+    }
+    this.topics[type].push(fn);
+  };
+  
+  doPublish = (type, ...args) => { // 发布指定类型的主题
+    if(!this.topics[type]) {
+      return;
+    }
+    for (let fn of this.topics[type]) {
+      fn(args);
+    } 
+  };
+}
+const publish = new Publish();
+const subA = {type: 'typeA'};
+const subB = {type: 'typeB'};
+const subC = {type: 'typeC'};
+// 订阅
+publish.subscribe(subA.type, () => console.log(`subscribe ${subA.type}`));
+publish.subscribe(subB.type, () => console.log(`subscribe ${subB.type}`));
+publish.subscribe(subC.type, () => console.log(`subscribe ${subC.type}`));
+// 发布通知
+publish.doPublish(subA.type);
+```
+
+## 18.算法题
+> 请把两个数组 ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'D1', 'D2'] 和 ['A', 'B', 'C', 'D']，合并为 ['A1', 'A2', 'A', 'B1', 'B2', 'B', 'C1', 'C2', 'C', 'D1', 'D2', 'D']
+
+```js
+function formatArray(arr1, arr2) {
+  let formatArr2 = arr2.map(v => v + 3);
+  let arr = [];
+  
+  arr1.concat(formatArr2).sort().map(v => {
+    if (v.indexOf('3') !== -1) {
+      v = v.split('')[0]
+    }
+    arr.push(v);
+  });
+  
+  return arr;
+}
+```
+
+## 19. 改造下面的代码，使之输出0 - 9，写出你能想到的所有解法。
+```js
+for (var i = 0; i< 10; i++){
+  	setTimeout(() => {
+  		console.log(i);
+      }, 1000)
+  }
+```
+
+```js
+for (let i = 0; i < 10; i++) {
+	setTimeout(() => {
+  		console.log(i);
+    }, 1000)
+}
+```
+
+```js
+for (var i = 0; i < 10; i++) {
+  ((i) => {
+    setTimeout(() => console.log(i), 1000)
+  })(i)
+}
+```
+
+```js
+for (var i = 0; i < 10; i++) {
+  setTimeout(i => {
+    console.log(i)
+  }, 1000, i);
+}
+```
+
+## 20.实现一个sleep函数
+```js
+function sleep(time) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, time)
+  })
+}
+```
+
+## 21.实现 (5).add(3).minus(2) 功能
+```js
+Number.prototype.add = function(num) {
+  if (typeof num !== 'number' || isNaN(num)) {
+    throw new Error(`must be num number`);
+  }
+  
+  return this + num;
+};
+
+Number.prototype.minus = function(num) {
+  if (typeof num !== 'number' || isNaN(num)) {
+      throw new Error(`must be num number`);
+  }
+  
+  return this - n;
+};
+```
+
+## 22.冒泡排序如何实现，时间复杂度是多少， 还可以如何改进？
+```js
+// 原始冒泡 O(n^2)
+function buddleSort(arr) {
+  const array = arr;
+  const len = array.length;
+  for (let i = 0; i < len - 1; i++) {
+    for (let j = 0; j < i + 1; j++) {
+      if (array[i] > array[j]) {
+        let temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+      }
+    }
+  }
+  
+  return array;
+}
+
+// 优化版本
+function buddleSort1(arr) {
+  const array = arr;
+  const len = array.length;
+  let isSort = true;
+  
+  for (let i = 0; i < len - 1; i++) {
+    for (let j = 0; j < i + 1; j++) {
+      if (array[i] > array[j]) {
+        let temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+        
+        isSort = false;
+      }
+    }
+    if (isSort) {
+      break;
+    }
+  }
+  
+  return array;
+}
+```
+
+## 23.某公司 1 到 12 月份的销售额存在一个对象里面
+> 如下：{1:222, 2:123, 5:888}，请把数据处理为如下结构：[222, 123, null, null, 888, null, null, null, null, null, null, null]。
+```js
+function format(obj) {
+  return Array.from({ length: 12 }).map((item, index) => obj[i + 1] || null);
+}
+```
+
+## 24.要求设计 LazyMan 类，实现以下功能。
+LazyMan('Tony');
+
+> // Hi I am Tony
+  
+LazyMan('Tony').sleep(10).eat('lunch');
+
+> // Hi I am Tony
+  
+> // 等待了10秒...
+  
+> // I am eating lunch
+  
+LazyMan('Tony').eat('lunch').sleep(10).eat('dinner');
+
+> // Hi I am Tony
+
+> // I am eating lunch
+
+> // 等待了10秒...
+
+> // I am eating diner
+  
+LazyMan('Tony').eat('lunch').eat('dinner').sleepFirst(5).sleep(10).eat('junk food');
+
+>  // Hi I am Tony
+  
+>  // 等待了5秒...
+  
+>  // I am eating lunch
+  
+>  // I am eating dinner
+  
+>  // 等待了10秒...
+  
+>  // I am eating junk food
+```js
+  class LazyMan {
+    constructor(name) {
+      console.log(`Hi I am ${name}`);
+      this.taskList = [];
+      this.name = name;
+
+      setTimeout(() => this.next(), 0)
+    }
+
+    eat = (food) => {
+      let that = this;
+      const fn = (function (f) {
+        return () => {
+          that.next();
+          console.log(`I am eating ${f}`)
+        }
+      })(food);
+      this.taskList.push(fn);
+      return this;
+    };
+
+    sleepFirst = (time) => {
+      let that = this;
+      const fn = (function (t) {
+        return () => {
+          setTimeout(() => {
+            console.log(`等待了${t}秒...`);
+            that.next();
+          }, time * 1000);
+        }
+      })(time);
+      this.taskList.unshift(fn);
+      return this;
+    };
+
+    sleep = (time) => {
+      let that = this;
+      const fn = (function (t) {
+        return () => {
+          setTimeout(() => {
+            console.log(`等待了${t}秒...`);
+            that.next();
+          }, time * 1000);
+        }
+      })(time);
+      this.taskList.push(fn);
+      return this;
+    };
+
+    next = () => {
+      let fn = this.taskList.shift();
+      fn && fn();
+    }
+  }
+
+  function lazyMan(name) {
+    return new LazyMan(name);
+  }
+  lazyMan('哈哈哈').sleepFirst(5).eat('水果').sleep(10);
+```
+
+## 25.输出以下代码运行结果
+```js
+// example 1
+var a={}, b='123', c=123;  
+a[b]='b';
+a[c]='c';  
+console.log(a[b]);
+```
+```js
+// example 2
+var a={}, b=Symbol('123'), c=Symbol('123');  
+a[b]='b';
+a[c]='c';  
+console.log(a[b]);
+```
+
+```js
+// example 3
+var a={}, b={key:'123'}, c={key:'456'};  
+a[b]='b';
+a[c]='c';  
+console.log(a[b]);
+```
+
+* 对象建明必须是字符串或symbol
+* 第一题输出是c，a[c]隐式转换把123转换成了'123'，所以会覆盖a[b]故输出c
+* 第二题输出b，因为是用symbol定义的
+* 第三题输出c，b和c是对象隐式转换成了'[object object]'，所以会覆盖a[b]故输出c
+
+
+  
