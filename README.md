@@ -890,7 +890,7 @@ class SelfPromise {
         case FULFILLED:
           onFulfilled(value);
           break;
-        case REJEcTED:
+        case REJECTED:
           onRejected(value);
           break;
       }
