@@ -795,5 +795,109 @@ console.log(a[b]);
 * 第二题输出b，因为是用symbol定义的
 * 第三题输出c，b和c是对象隐式转换成了'[object object]'，所以会覆盖a[b]故输出c
 
+## 26.实现Promise
+```js
+// 简单实现
+class SelfPromise {
+  
+  PENDING = 'PENDING';
+  FULFILLED = 'FULFILLED';
+  REJECTED = 'REJECTED';
+  
+  constructor(handle) {
+    if (!this.isFunction(handle)) {
+      throw new Error('handle must be function')
+    }
+    
+    this.status = PENDING;
+    this.value = undefined;
+    this.fulfilledQueues = [];    // 添加成功回调函数队列
+    this.rejectedQueues = [];    // 添加失败回调函数队列
+    
+    try {
+      handle(this.resolve.bind(this), this.reject.bind(this))
+    } catch (e) {
+      this.reject(e)
+    }
+  }
+  
+  isFunction = (f) => {
+    return typeof f === 'function'
+  };
+  
+  resolve = (val) => {
+    if (this.status !== PENDING) {
+      return;
+    }
+    
+    this.status = FULFILLED;
+    this.value = val;
+  };
+  
+  reject = (err) => {
+    if (this.status !== PENDING) {
+      return;
+    }
+    
+    this.status = REJECTED;
+    this.value = err;
+  };
+  
+  then = (onFulfilled, onRejected) => {
+    const { status, value, isFunction } = this;
+    
+    return new SelfPromise((onFulfilledNext, onRejectedNext) => {
+      let fulfilled = v => {
+        try {
+          if (!isFunction(onFulfilled)) {
+            onFulfilledNext(v);
+          } else {
+            let res = onFulfilled(v);
+            if (res instanceof SelfPromise) {
+              // 如果当前回调函数返回MyPromise对象，必须等待其状态改变后在执行下一个回调 
+              res.then(onFulfilledNext, onFulfilledNext)
+            } else {
+              onFulfilledNext(res)
+            }
+          }
+        } catch (e) {
+          onRejectedNext(e)
+        }
+      };
+      
+      let rejected = err => {
+        try {
+          if (!isFunction(err)) {
+            onRejectedNext(err);
+          } else {
+            let res = onRejected(err);
+            if (res instanceof SelfPromise) {
+              res.then(onFulfilledNext, onRejectedNext);
+            } else {
+              onFulfilledNext(res);
+            }
+          }
+        } catch (e) {
+          onRejectedNext(e);
+        }
+      };
+      
+      switch (status) {
+        case PENDING:
+          this.fulfilledQueues.push(onFulfilled);
+          this.rejectedQueues.push(onRejected);
+          break;
+        case FULFILLED:
+          onFulfilled(value);
+          break;
+        case REJEcTED:
+          onRejected(value);
+          break;
+      }
+    });
+  };
+}
+```
+
 
   
