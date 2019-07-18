@@ -13,6 +13,7 @@
   parseInt('3', 2); // 2 是2进制最大值为2 无法计算返回 NaN
 ```
 * 所以答案是[1, NaN, NaN],不是['1', '2', '3']
+
 ## 3.什么是防抖和节流？有什么区别？如何实现？
 * 防抖：动作绑定事件，动作发生后一定时间后触发事件，在这段时间内，如果该动作又发生，则重新等待一定时间再触发事件
 ```js
@@ -797,107 +798,191 @@ console.log(a[b]);
 
 ## 26.实现Promise
 ```js
-// 简单实现
-class SelfPromise {
-  
-  PENDING = 'PENDING';
-  FULFILLED = 'FULFILLED';
-  REJECTED = 'REJECTED';
-  
-  constructor(handle) {
-    if (!this.isFunction(handle)) {
-      throw new Error('handle must be function')
-    }
-    
+const PENDING = 'PENDING';
+const FULFILLED = 'FULFILLED'
+const REJECTED = 'REJECTED'
+class _Promise {
+  constructor(fn) {
     this.status = PENDING;
     this.value = undefined;
-    this.fulfilledQueues = [];    // 添加成功回调函数队列
-    this.rejectedQueues = [];    // 添加失败回调函数队列
+    this.reason = undefined;
     
-    try {
-      handle(this.resolve.bind(this), this.reject.bind(this))
-    } catch (e) {
-      this.reject(e)
+    let resolve = val => {
+      if (this.status === PENDING) {
+        this.status = FULFILLED;
+        this.value = val;
+      }
+    };
+    
+    let reject = err => {
+      if (this.status === PENDING) {
+        this.status = REJECTED;
+        this.reason = err;
+      }
+    };
+    
+     // 自动执行函数
+     try {
+       fn(resolve, reject)
+     } catch (e) {
+       reject(e);
+     }
+  }
+  
+  then(onFulfilled, onRejected) {
+    switch (this.status) {
+      case FULFILLED:
+        onFulfilled();
+        break;
+      case REJECTED:
+        onRejected();
+        break;
+      default: return null;  
+    }
+  }
+}
+```
+
+## 26.call,apply,bind的区别如何实现它们
+
+* call方法第一个参数是要绑定this的值，后面传入是一个参数列表。当地一个参数为null,undefined时候默认指向window
+```js
+// 一个简单的使用例子
+const obj = {
+  message: 'My name is:'
+};
+function getName(firstName, lastName) {
+  console.log(`${this.message}${firstName}-${lastName}`);
+}
+getName.call(obj, '张三', '李四');
+
+// 实现一个call
+Function.prototype._call = function(context) {
+  if (typeof this !== 'function') {
+    throw new TypeError('not funciton')
+  }
+  
+  const ctx = context || window; // 若给null undefined则指向window
+  
+  ctx.fn = this; // 重新绑定this
+  
+  const args = [...arguments].slice(1); // 获取方法里传递的所有参数,第0个除外
+  
+  const res = ctx.fn(...args);
+  
+  // 删除改方法，不然会污染被调用的对象
+  delete ctx.fn;
+  
+  return res;
+}
+```
+
+* apply接收两个参数，第一个参数是给绑定给this的值，第二个参数是一个参数数组。当第一个参数为null,undefined时候则默认指向window
+```js
+// 使用例子
+const obj = {
+  message: 'My name is:'
+};
+function getName(firstName, lastName) {
+  console.log(`${this.message}${firstName}-${lastName}`);
+}
+getName.apply(obj, ['张三', '李四']); // 其实apply和call最后目标是一直，只是后面参数传递方式的区别，apply是数组
+
+// 实现一个apply
+Function.prototype._apply = function(context) {
+  if (typeof this !== 'function') {
+    throw new TypeError('not funciton')
+  }
+    
+  const ctx = context || window;
+  
+  ctx.fn = this;
+  
+  const res = arguments[1] ? ctx.fn(arguments[1]) : ctx.fn();
+  
+  delete ctx.fn;
+  
+  return res;
+}
+```
+
+* bind和call非常相似，第一个参数是this指向，从第二个参数开始接受的参数列表。区别在与bind方法返回值是函数以及bind接受到的参数列表，bind方法不会立刻执行，而是返回了一个改变上下文this的函数，原函数不变化
+```js
+// 使用例子
+const obj = {
+    message: 'My name is:'
+};
+function getName(firstName, lastName) {
+  console.log(`${this.message}${firstName}-${lastName}`);
+}
+const fn = getName.bind(obj, '张三', '李四');
+fn();
+
+// 实现一个bind
+Function.prototype._bind = function(context) {
+  if (typeof this !== 'function') {
+    throw new TypeError('not funciton')
+  }
+  
+  let that = this;
+  let args = [...arguments].slice(1);
+  
+  return function _F() {
+    if (this instanceof _F) {   // 处理函数使用new的情况
+      return new that(...args, ...arguments)
+    } else {
+      return that.apply(context, [...args, ...arguments])
+    }
+  }
+}
+```
+
+## 27.关于对象拷贝
+```js
+// 实现浅拷贝
+function copyObj(obj) {
+  if (!obj) {
+    return obj;
+  }
+  return Object.assign({}, obj);
+}
+
+// 实现一个基本的深拷贝
+function deepCopy(obj) {
+  let target = obj instanceof Array ? [] : {};
+  for (let key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      target[key] = typeof obj[key] === 'object' ? deepCopy(obj[key]) : obj[key]
     }
   }
   
-  isFunction = (f) => {
-    return typeof f === 'function'
-  };
-  
-  resolve = (val) => {
-    if (this.status !== PENDING) {
-      return;
-    }
-    
-    this.status = FULFILLED;
-    this.value = val;
-  };
-  
-  reject = (err) => {
-    if (this.status !== PENDING) {
-      return;
-    }
-    
-    this.status = REJECTED;
-    this.value = err;
-  };
-  
-  then = (onFulfilled, onRejected) => {
-    const { status, value, isFunction } = this;
-    
-    return new SelfPromise((onFulfilledNext, onRejectedNext) => {
-      let fulfilled = v => {
-        try {
-          if (!isFunction(onFulfilled)) {
-            onFulfilledNext(v);
-          } else {
-            let res = onFulfilled(v);
-            if (res instanceof SelfPromise) {
-              // 如果当前回调函数返回MyPromise对象，必须等待其状态改变后在执行下一个回调 
-              res.then(onFulfilledNext, onFulfilledNext)
-            } else {
-              onFulfilledNext(res)
-            }
-          }
-        } catch (e) {
-          onRejectedNext(e)
-        }
-      };
-      
-      let rejected = err => {
-        try {
-          if (!isFunction(err)) {
-            onRejectedNext(err);
-          } else {
-            let res = onRejected(err);
-            if (res instanceof SelfPromise) {
-              res.then(onFulfilledNext, onRejectedNext);
-            } else {
-              onFulfilledNext(res);
-            }
-          }
-        } catch (e) {
-          onRejectedNext(e);
-        }
-      };
-      
-      switch (status) {
-        case PENDING:
-          this.fulfilledQueues.push(onFulfilled);
-          this.rejectedQueues.push(onRejected);
-          break;
-        case FULFILLED:
-          onFulfilled(value);
-          break;
-        case REJECTED:
-          onRejected(value);
-          break;
-      }
-    });
-  };
+  return target;
 }
 ```
+## 28.实现一个EventEmitter
+```js
+class EventEmitter {
+  constructor() {
+    this.events = this.events || new Map()
+  }
+  // 添加监听
+  addListener(type, fn) {
+    if (!this.events.get(type)) {
+      this.events.set(type, fn);
+    }
+  }
+  // 接收监听
+  emit(type) {
+    const handle = this.events.get(type);
+    handle.apply(this, [...arguments].splice(1))
+  }
+  // 移除监听
+  removeListener(type) {
+    this.events.delete(type)
+  }
+}
+```
+
 
 
   
