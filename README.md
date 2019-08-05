@@ -983,6 +983,43 @@ class EventEmitter {
 }
 ```
 
+## 29.react hook
+```js
+import React, { useState } from 'react'
+
+/**
+* 随机颜色函数
+* @param colors
+* @param initialColor
+* @returns {*[]}
+*/
+const useRandomColor = (colors=[], initialColor='#fff') => {
+  const lenColor = colors.length;
+  const [color, setColor] = useState(initialColor);
+  
+  const changeColor = () => {
+    const index = Math.floor(Math.random() * lenColor);
+    const activeColor = colors[index];
+    setColor(activeColor);
+  };
+ 
+  return [color, changeColor]
+};
+
+const colorBanner = () => {
+  const colors = ['red', 'blue', 'green'];
+  const [color, changeColor] = useRandomColor(colors, 'red');
+  
+  return(
+     <div style={{ textAlign: 'center', padding: '20px 0', backgroundColor: color }}>
+       <h2>点击更换背景色</h2>
+       <br />
+       <button onClick={changeColor}>change</button>
+     </div>
+  )
+};
+```
+
 
 
   
