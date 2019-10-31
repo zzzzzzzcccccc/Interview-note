@@ -1020,6 +1020,15 @@ const colorBanner = () => {
 };
 ```
 
+## 30.最简洁方法实现m的n次方结果
+```js
+/**
+* @param {number} number     被次方数 
+* @param {number} powNumber  次方数
+*/
+const mathPow = (number, powNumber) => number ** powNumber
+```
+
 
 
   
