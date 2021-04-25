@@ -1077,7 +1077,41 @@ function myClear() {
 ## 32.合并二维有序数组成一维有序数组，归并排序的思路
 
 ```js
-function listMerge(arr) {
-  return arr.toString().split(',')
+function mergeSortArr(arr) {
+  let mergeArr = arr.toString().split(',').map(v => v * 1);
+  return mergeArr.sort((a, b) => a - b);
 }
 ```
+
+## 33.斐波那契数列
+
+```js
+function fb(n) {
+  if (n <= 0) {
+    throw new Error('长度不能小于0')
+  }
+  if (len < 2) {
+    return n;
+  }
+  let arr = [];
+  arr[0] = 0;
+  arr[1] = 1;
+  for (let i = 1; i < n; i++) {
+    arr[i + 1] = arr[i] + arr[i - 1];
+  }
+  return arr[n];
+}
+```
+
+## 34.React 项目中有哪些细节可以优化？实际开发中都做过哪些性能优化
+
+* 父级改变props后导致子组件里的嵌套的子组件收到影响也触发render导致性能问题，可使用PureComponent或者hook的React.memo进行组件优化，若需要深度优化可以使用react生命周期里的ShouldComponentUpdate进行部分字段return false 优化
+  
+* 尽量不要使用index当key导致diff算法失效
+  
+* 减少标签树层级，可使用数组组件或Fragments
+  
+* 使用redux或mobx这种状态库更新数据时候尽量不要全局更新导致多处组件触发render可使用immediate-helper库进行数据更新
+  
+* 不要在render函数中处理数据
+  
