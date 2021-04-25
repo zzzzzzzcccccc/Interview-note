@@ -1073,3 +1073,11 @@ function myClear() {
   }
 }
 ```
+
+## 32.合并二维有序数组成一维有序数组，归并排序的思路
+
+```js
+function listMerge(arr) {
+  return arr.toString().split(',')
+}
+```
