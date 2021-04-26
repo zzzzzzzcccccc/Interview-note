@@ -1090,7 +1090,7 @@ function fb(n) {
   if (n <= 0) {
     throw new Error('长度不能小于0')
   }
-  if (len < 2) {
+  if (n < 2) {
     return n;
   }
   let arr = [];
@@ -1099,7 +1099,7 @@ function fb(n) {
   for (let i = 1; i < n; i++) {
     arr[i + 1] = arr[i] + arr[i - 1];
   }
-  return arr[n];
+  return arr;
 }
 ```
 
@@ -1114,4 +1114,38 @@ function fb(n) {
 * 使用redux或mobx这种状态库更新数据时候尽量不要全局更新导致多处组件触发render可使用immediate-helper库进行数据更新
   
 * 不要在render函数中处理数据
-  
+
+## 35.实现add(1)(2)(3)
+
+```js
+//简单版
+function add1(a) {
+  return function(b) {
+    return function(c) {
+      return a + b + c
+    }
+  }
+}
+// 函数柯里化
+function getTotal(...args) {
+  return args.reduce((a, b) => a + b);
+}
+
+function curry(fn) {
+  let argsArr = [];
+  return function temp(...tempArgs) {
+    if (tempArgs.length > 0) {
+      argsArr = [...argsArr, ...tempArgs];
+      return temp;
+    } else {
+      let val = fn.apply(this, argsArr)
+      argsArr = [];
+      return val;
+    }
+  }
+}
+
+let add2 = curry(getTotal);
+console.log(add2(1)(2)(3)());
+console.log(add2(2,3)(4,5)(6)())
+```
