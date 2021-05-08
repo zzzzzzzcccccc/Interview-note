@@ -1149,3 +1149,79 @@ let add2 = curry(getTotal);
 console.log(add2(1)(2)(3)());
 console.log(add2(2,3)(4,5)(6)())
 ```
+
+## 36.实现事件订阅发布
+
+```js
+class EventBus {
+  constructor() {
+    Object.defineProperty(this, 'handles', {
+      value: {}
+    })
+  }
+
+  on = (eventName, listener) => {
+    if (typeof listener !== 'function') {
+      throw new Error('listener must be function!')
+    }
+    if (!this.handles[eventName]) {
+      this.handles[eventName] = [];
+    }
+    this.handles[eventName].push(listener)
+  }
+
+  emit = (eventName, ...args) => {
+    let listeners = this.handles[eventName]
+    if (!listeners) {
+      throw new Error(`${eventName} must be null`);
+    }
+    for (listener of listeners) {
+      listener(...args);
+    }
+  }
+
+  off = (eventName, listener) => {
+    if (!listener) {
+      delete this.handles[eventName];
+      return;
+    }
+    let listeners = this.handles[eventName];
+    if (listeners && listeners.length > 0) {
+      const index = listeners.findIndex(item => item === listener);
+      listeners.splice(index, 1);
+    }
+  };
+
+  once = (eventName, listener) => {
+    if (typeof listener !== 'function') {
+      throw new Error('listener must be function!')
+    }
+    const onceListener = (...args) => {
+      listener(...args);
+      this.off(eventName, listener);
+    };
+    this.on(eventName, onceListener);
+  };
+}
+```
+
+## 37.实现Math.sqrt开平方根函数
+
+```js
+// 使用牛顿迭代法开平方根即公式是 x = (x + n / x) / 2
+function _sqrt(n) {
+  if (isNaN(n)) {
+    throw new Error('must be NaN');
+  }
+  if (n < 0) {
+    throw new Error('must be < 0');
+  }
+  let val = n,last;
+  do {
+    last = val;
+    val = (val + n / val) / 2;
+  }
+  while (Math.abs(val - last) >= Math.pow(2, -52));
+  return val;
+}
+```
