@@ -1225,3 +1225,106 @@ function _sqrt(n) {
   return val;
 }
 ```
+
+## 38.实现图片懒加载
+
+```js
+function getWindowHeight() {
+  return window.innerHeight || 
+    document.documentElement.clientHeight ||
+    document.body.clientHeight;
+}
+
+function getTop(dom) {
+  let offsetTop = dom.offsetTop;
+  while(dom = dom.offsetParent) {
+    offsetTop += dom.offsetTop;
+  }
+  return offsetTop;
+}
+
+let count = 0;
+function lazyLoad(imgs) {
+  const delta = 30;
+  const winH = getWindowHeight();
+  const scrollTop = document.documentElement.scrollTop || 
+    document.body.scrollTop;
+  for (let i = 0; i < imgs.length; i++) {
+    if (winH + scrollTop + delta > (getTop(imgs[i]) && getTop(imgs[i]) + imgs[i].offsetHeight + delta > scrollTop)) {
+      if (!imgs[i].src) {
+        imgs[i].src = imgs[i].getAttribute('data-src');
+        count++;
+      }
+      if (count === imgs.length) {
+        window.removeEventListener('scroll', handler);
+        window.removeEventListener('load', handler);
+      }
+    }
+  }  
+}
+
+function handler() {
+  lazyLoad(document.getElementsByTagName('img'));
+}
+window.removeEventListener('scroll', handler);
+window.removeEventListener('load', handler);
+```
+
+## 39.在浏览器输入url到页面渲染完毕发生了什么
+
+### 完整版
+
+* 查看硬盘hosts文件是否有对应域名隐射，如果有则直接返回
+  
+* 根据输入域名向DNS查询IP地址
+  
+* 得到地址后，建立连接，进行三次握手
+  1.客户端：我要连接你了可以吗？
+  2.服务端：嗯，我准备好，连接我吧。
+  3.客户端：那我连接你咯。
+
+* 向该IP地址发送一个GET请求，服务器80端口会做出响应
+
+* 服务器在80端口请求，传递相应内容到浏览器
+
+* 浏览器根据返回内容进行解析，并继续搜索页面是否有请求，有的话继续通过IP地址发送到服务器
+  
+* 接收完从服务器至浏览器的内容后，浏览器渲染页面，把内容呈现出来
+  
+* 客户端和服务端断开连接，进行第四次挥手
+
+### 简单版
+
+* DNS解析
+  
+* TCP连接
+
+* 发送HTTP请求
+
+* 服务器处理请求并返回HTTP报文
+
+* 浏览器解析内容渲染页面
+
+* 连接结束  
+  
+## 40.性能优化
+
+* 使用打包工具压缩代码
+
+* 雪碧图,图片懒加载
+
+* 图片cdn
+
+* js gzip
+
+* 使用服务器渲染(SSR)
+  
+* 非必要执行的js文件可以标签加上async或defer来延迟加载
+
+* 骨架屏
+
+* 减少dom操作
+
+* css选择器复杂性降低
+
+* dom结构复杂性降低
