@@ -301,6 +301,7 @@ function _new(fn, ...arg) {
 ```
 
 ## 11.Vue 和 React 的主要生命周期
+
 * Vue
   1. new Vue() 创建一个vue实例
   2. beforeCreate 实例创建前
@@ -311,6 +312,7 @@ function _new(fn, ...arg) {
   7. updated data数据变化更新完毕
   8. beforeDestory 实例销毁前
   9. destory 实例已销毁
+
 * React
   1. getDefaultProps 载入默认的props
   2. getInitialState 载入state
@@ -1328,3 +1330,73 @@ window.removeEventListener('load', handler);
 * css选择器复杂性降低
 
 * dom结构复杂性降低
+  
+## 41.Vue中computed和methods区别
+
+* computed内部变量不会发生变化的时候都只会执行一次，会有缓存。methods每次调用都会执行没有缓存
+
+* computed是响应式的，methods不是
+
+* 调用方式不一样，computed定义成员像属性一样访问，methods定义成员必须函数形式调用
+
+* computed中成员可以只定义个函数作为制度属性，也可以定义set get变成可读写属性，这点methods不行 
+
+## 42.获取url中的参数，1. 指定参数名称，返回该参数的值 或者 空字符串，2. 不指定参数名称，返回全部的参数对象 或者 {}，3. 如果存在多个同名参数，则返回数组
+
+```js
+function getUrlParam(sUrl, sKey) {
+  if (!sUrl || sUrl.indexOf('?') === -1) {
+    return "";
+  }
+  let params = {};
+  let paramsArr = sUrl.indexOf('#') > -1 ? 
+    sUrl.split('?')[1].split('#')[0].split('&') : 
+    sUrl.split('?')[1].split('&');
+
+  for (let i = 0; i < paramsArr.length; i++) {
+    let key = paramsArr[i].split('=')[0];
+    let val = decodeURIComponent(paramsArr[i].split('=')[1]);
+    if (ket in params) {
+      params[key] = [].concat(params[key], val);
+    } else {
+      params[key] = val;
+    }
+  } 
+
+  return sKey ? params[sKey] || "" : params;
+}
+```
+
+## 43.webpack原理
+
+### 基本概念
+
+* entry 入口文件
+
+* module 模块，在webpack中一个模块对应一个文件。webpack会从entry开始，递归找出所有依赖模块
+  
+* chunk 代码块，一个chunk由多个模块组成，用于代码合并与分割
+  
+* loader 模块转换器，用于将模块原内容按照要求转换成新内容
+  
+* plugin 拓展插件，在webpack构建流程中特定实际会广播时间，插件可以监听这些事件，用于开发一些定制化编译
+
+### webpack从启动到结束一次执行顺序下
+
+![](./lib/image/5.png);
+
+* 初始化参数：从配置文件（默认webpack.config.js）和shell语句中读取合并参数，得出最终参数
+  
+* 开始编译：用上一步的配置参数初始化Comiler对象，加载所有配置插件，通过执行run方法开始编译
+
+* 确定入口：根据配置中entry找出所有入口文件
+
+* 编译模块：从入口文件出发，调用所有配置的loader对模块进行翻译，再找出改模块依赖的模块，再递归本步骤进行翻译
+  
+* 完成编译模块：经过上一步后，得到了每个模块被翻译后的最终内容和之间的依赖关系
+  
+* 输出资源：根据入口和模块执行依赖关系，组成一个个包含多个模块chunk，再将每个chunk转换成单独的文件加入输出列表中，这是可以修改内容的最后机会
+  
+* 输出完成：在确定好输出内容，根据配置（webpack.config.js && shell）确定出书的路径和文件名，将文件的内容写入文件系统中（nodejs fs模块进行）
+  
+* 在上述过程中，webpack会在特定的时间广播特定事件，插件监听事件并执行相应的逻辑，并且插件可以调用webpack提供的api改变webpack的运行结果
