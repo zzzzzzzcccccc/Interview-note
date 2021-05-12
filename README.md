@@ -1444,3 +1444,4 @@ function getUrlParam(sUrl, sKey) {
 * 全局作用域
   
 * 白话说就是里面能访问外面，外面不能访问到里面
+  
