@@ -1383,7 +1383,7 @@ function getUrlParam(sUrl, sKey) {
 
 ### webpack从启动到结束一次执行顺序下
 
-![](./lib/image/5.png);
+![](./lib/image/5.png)
 
 * 初始化参数：从配置文件（默认webpack.config.js）和shell语句中读取合并参数，得出最终参数
   
@@ -1400,3 +1400,47 @@ function getUrlParam(sUrl, sKey) {
 * 输出完成：在确定好输出内容，根据配置（webpack.config.js && shell）确定出书的路径和文件名，将文件的内容写入文件系统中（nodejs fs模块进行）
   
 * 在上述过程中，webpack会在特定的时间广播特定事件，插件监听事件并执行相应的逻辑，并且插件可以调用webpack提供的api改变webpack的运行结果
+
+## 44.css各种选择器的权重
+
+* 内联(1000) > ID(0100) > class(0010) > 标签(0001) > 通配符、子选择器、等(0000)
+
+## 45.css盒模型
+
+* w3c盒模型包含margin、border、padding、content,并且content不包涵其他部分(box-sizing:content-box)
+
+* ie盒模型包含margin、border、padding、content,并且content包含了padding和border (box-sizing:border-box)
+
+## 46.浏览器缓存机制，强缓存，协商缓存，http头字段
+
+### 浏览器缓存机制
+
+* 浏览器发起HTTP请求 - 服务器响应请求。浏览器第一次向服务器发起请求结果后拿到请求结果，会根据响应报文中HTTP头的缓存标识，决定是否缓存，若是则将请求结果缓存到浏览器中
+  
+### 强缓存
+
+* 向浏览器缓存查找请求结果，并根据该结果的缓存规则来决定是否使用缓存结果过程
+
+* 强制缓存失效，则直接想服务器发起请求
+  
+* 存在缓存标识，但是结果已失效，则使用协商缓存
+
+* 存在缓存标识，结果还没有失效，则生效，直接返回结果（典型就是ie浏览器的get请求请求标头的Expires和Cache-Control,后者比前者高）
+  
+### 协商缓存
+
+* 协商缓存就是强制缓存失效后，浏览器携带缓存标识向服务器发起请求，有由服务根据协商缓存标头是否使用缓存的过程
+
+* 协商缓存生效则http code返回304
+  
+* 协商缓存失败则http code返回200
+  
+* 协商缓存标头Last-Modified / If-Modified-Since和Etag / If-None-Match, 其中Etag / If-None-Match的优先级比Last-Modified / If-Modified-Since高
+
+## 47.JavaScript作用域
+
+* 局部作用域
+  
+* 全局作用域
+  
+* 白话说就是里面能访问外面，外面不能访问到里面
