@@ -1575,3 +1575,34 @@ function quickSort(arr) {
 ```shell
 netstat -anp |grep 端口
 ```
+
+## 55.css实现三角形
+
+```js
+.triangle{
+  width: 0;
+  height: 0;
+  display:inline-block;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 20px solid red;
+}
+```
+
+## 56.mobx与redux区别
+
+* redux是Store -> View -> Action，mobx只关心Store -> View
+  
+* mobx的数据依赖始终保持最小颗粒，而且基于运行时。redux，可能一不小心就是多订阅或少订阅了数据，所以为了提升性能，往往需要PureRenderMixin 以及 reselect 对 selector 做缓存
+
+* OOP方式在某些场景下比较方便，尤其是容易抽取domain model的时候。进而由于mobx支持音容方式引入数据，所以可以非常容易形成模型图，这样可以更好的理解我们的应用
+
+* mobx是基于原生JavaScript对象、数组、和Class实现。所以修改数据不需要额外的语法成本，也不需要使用返回一个新的数据，而是直接操作数据
+  
+* redux将数据保存在单一store中，mobx将数据保存分散在多个store
+
+* redux使用不可变状态，不能直接修改，而是返回一个新状态，mobx状态可变，可以直接修改
+  
+* mobx比较简单，mobx更多使用面向对象编程思维，redux比较复杂，使用函数式编程思维掌握起来不容易，同时需要借助一系列中间件来处理异步和副作用
+
+* mobx中有更多的抽象和封装，调试比较困难同时结果难以预测；而redux提供能够进行时间回溯的开发工具，同时其纯函数以及更少的抽象，让调试变得更加容易
