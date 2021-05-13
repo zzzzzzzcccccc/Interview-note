@@ -1635,3 +1635,89 @@ axios.interceptors.response.use(response => {
   return Promise.reject(error);
 })
 ```
+
+## 58.浅谈react Diff算法
+
+* 作用计算出Virtual DOM中真正变化的部分，并只针对部门进行原生DOM操作，而非重新渲染整个页面
+
+* Diff策略，Web UI 中DOM节点跨层级的移动操作特别少，可以忽略不计
+
+* react Diff整体策略是 Tree Diff / Component Diff / Element Diff
+
+* Tree Diff React对树的算法进行简洁明了的优化，即对树进行分层比较，两棵树智慧相对同层进行节点比较
+  
+![](./lib/image/6.png)
+
+```js
+updateChildren: function(nextNestedChildrenElements, transaction, context) {
+  updateDepth++;
+  var errorThrown = true;
+  try {
+    this._updateChildren(nextNestedChildrenElements, transaction, context);
+    errorThrown = false;
+  } finally {
+    updateDepth--;
+    if (!updateDepth) {
+      if (errorThrown) {
+        clearQueue();
+      } else {
+        processQueue();
+      }
+    }
+  }
+}
+```
+
+* React是基于组件构建应用的，对于组件间的比较采取的策略也是简洁高效
+  
+  1.对于同一类型的组件，按照原策略继续比较Virtual DOM tree
+
+  2.如果不是，则将组件判断未dirty component，从而替换整个组件下所有节点
+
+  3.对于同一类型的组件，有可能Virtual DOM没有任何变化，如果能够确切之恶道这个那可以节点省大量的diff运算时间，因此React允许用户通过shouldComponentUpdate()来判断该组件是否需要diff
+
+* 当节点处于同一级是，React diff提供三种节点操作，分别是INSERT_MARKUP(插入),MOVE_EXISTING(移动),REMOVE_NODE(删除)
+  
+   1.INSERT_MARKUP,新的component类型不在老集合里，即全新的节点，需要对新节点执行插入操作
+
+   2.MOVE_EXISTING,在老集合有新component类型，切element是可以更新类型就会做此操作
+
+   3.REMOVE_NODE,老component类型，在新集合里也有，但对应的element不同则不能直接复用和更新，需要执行删除操作，或老component不在新的集合里，也需要执行删除操作
+
+```js
+function enqueueInsertMarkup(parentInst, markup, toIndex) {
+  updateQueue.push({
+    parentInst: parentInst,
+    parentNode: null,
+    type: ReactMultiChildUpdateTypes.INSERT_MARKUP,
+    markupIndex: markupQueue.push(markup) - 1,
+    content: null,
+    fromIndex: null,
+    toIndex: toIndex,
+  });
+}
+
+function enqueueMove(parentInst, fromIndex, toIndex) {
+  updateQueue.push({
+    parentInst: parentInst,
+    parentNode: null,
+    type: ReactMultiChildUpdateTypes.MOVE_EXISTING,
+    markupIndex: null,
+    content: null,
+    fromIndex: fromIndex,
+    toIndex: toIndex,
+  });
+}
+
+function enqueueRemove(parentInst, fromIndex) {
+  updateQueue.push({
+    parentInst: parentInst,
+    parentNode: null,
+    type: ReactMultiChildUpdateTypes.REMOVE_NODE,
+    markupIndex: null,
+    content: null,
+    fromIndex: fromIndex,
+    toIndex: null,
+  });
+}
+```
