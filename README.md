@@ -1445,3 +1445,133 @@ function getUrlParam(sUrl, sKey) {
   
 * 白话说就是里面能访问外面，外面不能访问到里面
   
+## 48.new一个对象的过程
+
+* 创建一个新对象
+  
+* 将构造函数的作用域值赋值给新对象
+  
+* 执行构造函数中的代码
+
+* 返回新对象
+
+```js
+function _new(constructor, ...args) {
+  let obj = {};
+  obj.__proto__ = constructor.prototype;
+  let result = constructor.apply(obj, arg);
+
+  return Object.prototype.toString.call(result === '[object object]' ? result : obj);
+}
+```
+
+## 49.简单说明下什么是事件冒泡，事件委托，事件捕获
+
+### 事件冒泡
+
+* 事件按照特定的事件目标到最不特定的事件目标的顺序触发，当一个元素接收到事件的时候会把它接收到的事件传给自己的父级一直到window结束(事件向上传播)
+
+### 事件委托
+
+* 事件委托是利用事件冒泡的，只制定一个时间处理程序，可以管理某一类所有事件
+
+### 事件捕获
+
+* 事件最不准确的对象开发触发，然后到最精确(与事件冒泡相反，向下传播)
+
+## 50.从prototype、隐式__proto__、constructor再到修改原型链内容导致的影响
+
+* 修改构造函数的原型，影响已创建的实例
+  
+```js
+Foo.prototype.name = 'hello';
+```
+
+* 修改构造函数(涉及this)，影响后来创建的实例
+
+```js
+Foo() {
+  this.name = 'hello';
+}
+```
+
+* 修改构造函数(不涉及this)，无影响
+
+```js
+Foo.name = 'hello';
+```
+
+## 51.如何实现闭包
+
+```js
+function f1() {
+  var a = 100;
+  return function() {
+    console.log(a);
+  }
+}
+var a = 200;
+f1(); // 100
+```
+
+```js
+var nAdd;
+function f1() {
+  var n = 999;
+  nAdd = function() {
+    n+=1;
+  }
+  function f2() {
+    console.log(n)
+  }
+  return f2;
+}
+var result = f1();
+result(); // 999
+nAdd();
+result(); // 1000
+```
+
+## 52.一个有序数组进行查找操作
+
+```js
+function arrSearch(arr, n) {
+  let left = 0, right = arr.length - 1, center;
+  while(left <= right) {
+    center = Math.floor((right + 1) / 2);
+
+    if (arr[center] === n) return center; // 相等返回下标
+    else if (arr[center] > n) right = center - 1; // 中位数比目标数大右侧下标减1继续递归
+    else left = center + 1; // 佛则从左侧下标加1递归
+  }
+  return -1;
+}
+```
+
+## 53.手写快速排序
+
+```js
+function quickSort(arr) {
+  if (arr.length <= 1) {
+    return arr;
+  }
+  let centerIndex = Math.floor(arr.length / 2);
+  let center = arr.splice(centerIndex, 1)[0]; // 删除中位数并且取到中位数
+  let left = [];
+  let right = [];
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] < center) {
+      left.push(arr[i])
+    } else {
+      right.push(arr[i])
+    }
+  }
+  return [...quickSort(left), center, ...quickSort(right)]
+}
+```
+
+## 54.linux查看端口是否被占用
+
+```shell
+netstat -anp |grep 端口
+```
