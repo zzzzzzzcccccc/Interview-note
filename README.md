@@ -1503,6 +1503,10 @@ Foo.name = 'hello';
 
 ## 51.如何实现闭包
 
+* 优点：内部可以访问全局变量，内部变量私有，且执行后不会被垃圾回收
+
+* 缺点：占用内存较大，使用后不会被回收导致
+
 ```js
 function f1() {
   var a = 100;
@@ -1606,3 +1610,28 @@ netstat -anp |grep 端口
 * mobx比较简单，mobx更多使用面向对象编程思维，redux比较复杂，使用函数式编程思维掌握起来不容易，同时需要借助一系列中间件来处理异步和副作用
 
 * mobx中有更多的抽象和封装，调试比较困难同时结果难以预测；而redux提供能够进行时间回溯的开发工具，同时其纯函数以及更少的抽象，让调试变得更加容易
+
+## 57.axios有一个请求失败，阻止其他请求
+
+```js
+const CancelToken = axios.CancelToken;
+const source = CancelToken.source();
+
+axios.interceptors.request.use(config => {
+  config.cancelToken = source.token;
+}, error => {
+  return Promise.reject(error);
+})
+
+axios.interceptors.response.use(response => {
+  if (response.data.code === 'xxxxx') {
+    source.cancel();
+  }
+  return response;
+}, error => {
+  if (axios.isCancel(error)) {
+    return new Promise(() => {});
+  }
+  return Promise.reject(error);
+})
+```
