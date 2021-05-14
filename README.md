@@ -18,38 +18,29 @@
 * 所以答案是[1, NaN, NaN],不是['1', '2', '3']
 
 ## 3.什么是防抖和节流？有什么区别？如何实现？
+
 * 防抖：动作绑定事件，动作发生后一定时间后触发事件，在这段时间内，如果该动作又发生，则重新等待一定时间再触发事件
 
 ```js
-/**
-* debounce
-* @param {Function} fn
-* @param {Number} delay
-* @returns {Function}
-*/
-function debounce(fn, delay) {
-  let timeout = null;
+function debounce(fn, time) {
+  let timer;
   return function() {
-    clearTimeout(timeout)
-    timeout = setTimeout(() => {
+    clearTimeOut(timer);
+    timer = setTimeOut(() => {
       fn.apply(this, arguments);
-    }, delay)
+    }, time);
   }
 }
 ```
+
 * 节流: 动作绑定事件，在规定时间内不管事件怎么触发，事件始终执行一次
+  
 ```js
-/**
-* throtte
-* @param fn
-* @param time
-* @returns {Function}
-*/
 function throtte(fn, time) {
   let activeTime = 0;
   return function() {
-    const current = Date.now();
-    if (current - activeTime > time) {
+    const currentTime = Date.now();
+    if (currentTime - activeTime > time) {
       fn.apply(this, arguments);
       activeTime = Date.now();
     }
@@ -58,6 +49,7 @@ function throtte(fn, time) {
 ```
 
 ## 4.Set、Map、WeakSet 和 WeakMap 的区别？
+
 * Set
   1. 成员不能重复
   2. 只有值，没有建名，类似数组
@@ -72,17 +64,22 @@ function throtte(fn, time) {
   2. 不能遍历，有get, set, has, delete方法
 
 ## 5.深度优先遍历、广度优先遍历
+
 * 深度优先遍历：假设某视图未被访问，则从某一个顶点v出发，依次访问下去直到访问不到为止，然后再访问另外一个未被访问的顶点v，依次执行下去。（其实就是多个tree递归的集合）
+  
 * 广度优先遍历：假设某视图未被访问，则从某一个顶点v出发访问完毕后再寻找另外一个顶点v直到找不到顶点v为止，然后在访问第一个访问过的顶点v的下级顶点，依次循环下去。(多个tree都先遍历顶部，遍历完所有tree的顶部，再遍历所有的下级，依次循环下去)
 
 ## 6.ES5/ES6 的继承除了写法以外还有什么区别？
+
 * function声明变量会提升, class不会。
+
 ```js
 const bar = new Bar(); // 这里不会报错，正常的new出来了
 function Bar() {
   this.foo = 1;
 }
 ```
+
 ```js
 const bar = new Bar(); // bar is not defined;
 class Bar {
@@ -91,8 +88,11 @@ class Bar {
   }
 }
 ```
+
 * class声明会默认内部开启严格模式
+
 * class所有方法都是不可枚举的
+
 ```js
 function Bar() {
   this.foo = 1;
@@ -102,6 +102,7 @@ Bar.prototype.answer = function() {
 }
 Object.keys(Bar.prototype) // ['answer']
 ```
+
 ```js
 class Bar {
   constructor() {
@@ -113,7 +114,9 @@ class Bar {
 }
 Object.keys(Bar.prototype) // []
 ```
+
 * class的所有方法没有原型prototype,不能用new调用
+
 ```js
 function Bar() {
   this.foo = 1;
@@ -124,6 +127,7 @@ Bar.prototype.answer = function () {
 const bar = new Bar();
 const answer = new bar.answer(); // 正常
 ```
+
 ```js
 class Bar {
   constructor(){
@@ -135,15 +139,19 @@ class Bar {
 }
 const bar = new Bar();
 const answer = new bar.answer(); // 报错
+
 ```
 * class使用前必须要new
+
 * class内部不能重写类名
+
 ```js
 function Bar() {
   Bar = 'Baz'; // 正常
   this.foo = 1;
 }
 ```
+
 ```js
 class Bar {
  constructor() {
@@ -155,8 +163,11 @@ Bar = 'Baz' // 正常
 ```
 
 ## 7.setTimeout、Promise、Async/Await 的区别
+
 * 此题需要基础非常优秀，不然太容易混淆，我个人理解是宏观上的任务列队与微观任务列队的区别
+
 * 例如经常会考的这样的题目问执行console的顺序
+
 ```js
 console.log(1);
 const promise = new Promise((resolve) => {
@@ -175,7 +186,9 @@ console.log(6)
 * 输出顺序 1 -> 2 -> 3 -> 6 -> 4 -> 5
 **/
 ```
+
 * 又例如关于async/await的
+
 ```js
 async function function1() {
   console.log(2);
@@ -193,7 +206,9 @@ console.log(5);
 * 输出顺序 1 -> 2 -> 4 -> 5 -> 3
 **/
 ```
+
 * 4个混合使用 (头条面试题)
+
 ```js
 async function async1() {
   console.log(1);
@@ -225,12 +240,15 @@ console.log(8);
 * 输出顺序 4 -> 1 -> 3 -> 6 -> 8 -> 2 -> 7 -> 5
 **/
 ```
+
 * 在js中任务为同步任务和异步任务，不同任务在主线程上执行，而异步任务只要有了执行结果就会放入任务队列中，一旦主线程任务执行完，系统就会读取任务队列将异步任务添加到可执行任务队列中，开始执行。任务执行流程图如下:
+
 ![](./lib/image/1.jpeg)
 
 * Promise异步是提现在then和catch的，所以在then之前的是同步执行的，await是等待而在任务队列里是让出一个线程的意思await后的同步任务会先执行，但是await的任务会在任务队列里去了
 
 ## 8.资源预加载，用于活动页面，游戏开始前加载
+
 ```js
 /**
 * 单张图片加载
@@ -1721,3 +1739,19 @@ function enqueueRemove(parentInst, fromIndex) {
   });
 }
 ```
+
+## 59.React事件机制原理
+
+* React有一套自己的事件系统，其事件叫做合成事件（React根据WC3的标准来定义自己的事件系统）
+
+* 磨平不同浏览器之间的兼容性差异
+
+* 事件"合成"，即事件自定义。即可以处理兼容问题，也可以用来自定义事件（例如React的onChange）
+
+* 提供一个抽象的跨平台事件机制
+
+* 可以做更多的优化。例如事件委托机制，技术所有事件都触发到了document，而不是dom本生，简化了dom事件处理逻辑，减少了内存开销
+
+* 可以干预事件的分发。V16引入Fiber架构，React可以通过干预事件分发优化用户交互体验
+
+![](./lib/image/7.png)
