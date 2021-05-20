@@ -388,13 +388,19 @@ class Example extends React.Component {
 * 输出顺序 0 -> 0 -> 2 -> 3
 */
 ```
-* 第一次和第二次都是在 react 自身生命周期内，触发时 isBatchingUpdates 为 true，所以并不会直接执行更新 state，而是加入了 dirtyComponents，所以打印时获取的都是更新前的状态 0。
 
-* 两次 setState 时，获取到 this.state.val 都是 0，所以执行时都是将 0 设置成 1，在 react 内部会被合并掉，只执行一次。设置完成后 state.val 值为 1。
-
-* setTimeout 中的代码，触发时 isBatchingUpdates 为 false，所以能够直接进行更新，所以连着输出 2，3。
+* 当react在执行setState时候，有一个全局变量isBatchingUpdates，当是true的时候会把setState值缓存到dirtyComponents中，所以前2次打印状态没有改变打印结果为0
+  
+* 又因为state状态合并所以同步打次执行代码中对setState执行合并为一次
+  
+* 等同步代码执行完毕时候isBatchingUpdates会变为false，所以setState会按顺序执行
+  
+* 故是打印4次，render函数只触发3次
+  
+* 为何setTimeout中的setState无法合并,React更新是基于Transaction(事物)的，Transaction就是给目标执行函数包裹一下，打上前置后置的hook，在执行前执行initialize hook，结束后再执行close hook，这样搭配isBatchUpdates这样布尔标识就可以实现一整个函数调用栈内多次setState全部入pending队列，结束后统一apply了。setTimeout这样方法执行脱离了Transaction，react控制不到所以就没发batch了
 
 ## 14.重绘和回流，如何优化它们
+
 * 浏览器渲染机制
   1. 浏览器是流式布局模型
   2. 浏览器会被html解析成dom，把css解析成cssom，dom和cssom组合形成了renderTree
@@ -424,6 +430,7 @@ class Example extends React.Component {
   11. 频繁修改操作dom，创建一个documentFragment，最后在添加到文档上
 
 ## 15. Vuex、mobx、redux
+
 * Vuex和redux思想是基本一致
   1. 统一维护应用状态
   2. 状态只有一个可信数据来源
@@ -437,6 +444,7 @@ class Example extends React.Component {
   5. 它颗粒度较细，没有redux的中间件的思想，所以没有action分发，直接到view
 
 ## 16.什么是BFC,请解释一下它
+
   1. BFC是web里盒模型的css渲染模式，是指独立的一个渲染区或是一个独立的隔离独立容器
   2. B -> block、F -> formatting、C -> context
   3. 当display: block、list-item、table元素会产生bfc
@@ -450,6 +458,7 @@ class Example extends React.Component {
     2. 盒子的垂直方向由margin决定，同一个BFC的盒子margin会重叠
     3. 每个盒子左边边缘会碰到父元素，父元素的border在padding和margin都为0时，会重叠
     4. 如果父元素没有设定高度，但盒子里有子盒子有浮动元素，那么BFC在计算高度时候，会算上子盒子浮动的高度
+
 ```html
 <style>
 .father {
@@ -471,8 +480,9 @@ class Example extends React.Component {
      <div class="son1"></div>
      <div class="son2"></div>
 </div>
-```   
-正常情况下的样子是上下块撑开父元素的高度 
+```
+
+正常情况下的样子是上下块撑开父元素的高度
 
 ![](./lib/image/2.png)
 
@@ -486,9 +496,11 @@ class Example extends React.Component {
 ![](./lib/image/4.jpg)
 
 ## 17.介绍下观察者模式和订阅-发布模式的区别，各自适用于什么场景
+
 * 观察模式：一个被观察的对象的状态发现变化，则会通知所有依赖它的对象
 
   例子：去餐厅吃饭时候，经常遇到人很多的情况，餐厅会给你发一个号码让你排队，餐厅则被视为观察者，一旦餐厅有位置了，则会通知所有排队的客人。
+
 ```js
 class Subject {
   constructor() {
@@ -522,9 +534,11 @@ subject.addObserver(subB);
 // 通知所有观察者
 subject.notify();
 ```
+
 * 发布模式：发布者状态更新时，发布某些类型的通知，只通知订阅了相关类型的订阅者，发布者和订阅者是没有直接关联的
 
   例子：去餐厅吃饭时候，经常遇到人很多的情况，餐厅会给你发一个号码让你排队(订阅了)，我们在排队过程中干其他的事情去了，到我们的号码的时候餐厅则会通知我们去就餐
+
 ```js
 class Publish {
   constructor() {
@@ -560,6 +574,7 @@ publish.doPublish(subA.type);
 ```
 
 ## 18.算法题
+
 > 请把两个数组 ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'D1', 'D2'] 和 ['A', 'B', 'C', 'D']，合并为 ['A1', 'A2', 'A', 'B1', 'B2', 'B', 'C1', 'C2', 'C', 'D1', 'D2', 'D']
 
 ```js
@@ -579,6 +594,7 @@ function formatArray(arr1, arr2) {
 ```
 
 ## 19. 改造下面的代码，使之输出0 - 9，写出你能想到的所有解法。
+
 ```js
 for (var i = 0; i< 10; i++){
   	setTimeout(() => {
@@ -612,6 +628,7 @@ for (var i = 0; i < 10; i++) {
 ```
 
 ## 20.实现一个sleep函数
+
 ```js
 function sleep(time) {
   return new Promise((resolve) => {
@@ -623,6 +640,7 @@ function sleep(time) {
 ```
 
 ## 21.实现 (5).add(3).minus(2) 功能
+
 ```js
 Number.prototype.add = function(num) {
   if (typeof num !== 'number' || isNaN(num)) {
@@ -642,6 +660,7 @@ Number.prototype.minus = function(num) {
 ```
 
 ## 22.冒泡排序如何实现，时间复杂度是多少， 还可以如何改进？
+
 ```js
 // 原始冒泡 O(n^2)
 function buddleSort(arr) {
@@ -686,14 +705,17 @@ function buddleSort1(arr) {
 ```
 
 ## 23.某公司 1 到 12 月份的销售额存在一个对象里面
+
 > 如下：{1:222, 2:123, 5:888}，请把数据处理为如下结构：[222, 123, null, null, 888, null, null, null, null, null, null, null]。
+
 ```js
 function format(obj) {
   return Array.from({ length: 12 }).map((item, index) => obj[i + 1] || null);
 }
 ```
 
-## 24.要求设计 LazyMan 类，实现以下功能。
+## 24.要求设计 LazyMan 类，实现以下功能
+
 LazyMan('Tony');
 
 > // Hi I am Tony
@@ -792,6 +814,7 @@ LazyMan('Tony').eat('lunch').eat('dinner').sleepFirst(5).sleep(10).eat('junk foo
 ```
 
 ## 25.输出以下代码运行结果
+
 ```js
 // example 1
 var a={}, b='123', c=123;  
@@ -799,6 +822,7 @@ a[b]='b';
 a[c]='c';  
 console.log(a[b]);
 ```
+
 ```js
 // example 2
 var a={}, b=Symbol('123'), c=Symbol('123');  
@@ -820,49 +844,110 @@ console.log(a[b]);
 * 第二题输出b，因为是用symbol定义的
 * 第三题输出c，b和c是对象隐式转换成了'[object object]'，所以会覆盖a[b]故输出c
 
-## 26.实现Promise
+## 26.手写Promise
+
 ```js
-const PENDING = 'PENDING';
-const FULFILLED = 'FULFILLED'
-const REJECTED = 'REJECTED'
+// https://github.com/M-FE/js-functions-simulation/blob/master/src/promise.ts
 class _Promise {
   constructor(fn) {
-    this.status = PENDING;
+    this.PENDING = 'PENDING';
+    this.FULFILLED = 'FULFILLED';
+    this.REJECTED = 'REJECTED';
+
+    this.status = this.PENDING;
     this.value = undefined;
-    this.reason = undefined;
-    
-    let resolve = val => {
-      if (this.status === PENDING) {
-        this.status = FULFILLED;
-        this.value = val;
-      }
-    };
-    
-    let reject = err => {
-      if (this.status === PENDING) {
-        this.status = REJECTED;
-        this.reason = err;
-      }
-    };
-    
-     // 自动执行函数
-     try {
-       fn(resolve, reject)
-     } catch (e) {
-       reject(e);
-     }
+    this.reason = [];
+    this.callbacks = [];
+    this.executed = false;
+
+    try {
+      fn(this._resolve, this._reject);
+    } catch (e) {
+      this._reject(e);
+    }
+  }
+
+  _resolve = (value) => {
+    if (this.executed) {
+      return;
+    }
+    this.executed = true;
+
+    if (this._promiseLike(value)) {
+      value.then(this._resolve, _this.reject);
+      return;
+    }
+
+    this.value = value;
+    this.status = this.FULFILLED;
+    this.callbacks.forEach(callback => this._handler(callback));
+  }
+
+  _reject = (reason) => {
+    if (this.executed) {
+      return;
+    }
+    this.executed = true;
+    if (this._promiseLike(reason)) {
+      reason.then(this._resolve, this._reject);
+      return;
+    }
+
+    this.reason = reason;
+    this.status = this.REJECTED;
+    this.callbacks.forEach(callback => this._handler(callback));
+  }
+
+  _handler = (callback) => {
+    if (this.status === this.PENDING) {
+      this.callbacks.push(callback);
+      return;
+    }
+    const { onFulfilled, onRejected, nextResolve, nextReject } = callback;
+
+    if (this.status === this.FULFILLED) {
+      const nextValue = onFulfilled ? onFulfilled(this.value) : this.value;
+      nextResolve(nextValue);
+      return;
+    }
+
+    if (this.status === this.REJECTED) {
+      const nextReason = onRejected ? onRejected(this.reason) : this.reason;
+      nextReject(nextReason);
+    }
+  }
+
+  _promiseLike = (data) => {
+    return data instanceof _Promise || (['function', 'object'].indexOf(typeof data) > -1 && 'then' in data);
   }
   
-  then(onFulfilled, onRejected) {
-    switch (this.status) {
-      case FULFILLED:
-        onFulfilled();
-        break;
-      case REJECTED:
-        onRejected();
-        break;
-      default: return null;  
+  resolve = (value) => {
+    if (this._promiseLike(value)) {
+      return value;
     }
+    return new _Promise((resolve) => resolve(value));
+  }
+  
+  reject = (reason) => {
+    if (this._promiseLike(reason)) {
+      return reason;
+    }
+    return new _Promise((resolve, reject) => reject(reason));
+  }
+
+  then = (onFulfilled, onRejected) => {
+    return new _Promise((nextResolve, nextReject) => {
+      this._handler({
+        onFulfilled,
+        onRejected,
+        nextResolve,
+        nextReject,
+      })
+    })
+  }
+
+  catch = (onRejected) => {
+    return this.then(undefined, onRejected);
   }
 }
 ```
@@ -870,6 +955,7 @@ class _Promise {
 ## 26.call,apply,bind的区别如何实现它们
 
 * call方法第一个参数是要绑定this的值，后面传入是一个参数列表。当地一个参数为null,undefined时候默认指向window
+  
 ```js
 // 一个简单的使用例子
 const obj = {
@@ -902,6 +988,7 @@ Function.prototype._call = function(context) {
 ```
 
 * apply接收两个参数，第一个参数是给绑定给this的值，第二个参数是一个参数数组。当第一个参数为null,undefined时候则默认指向window
+
 ```js
 // 使用例子
 const obj = {
@@ -931,6 +1018,7 @@ Function.prototype._apply = function(context) {
 ```
 
 * bind和call非常相似，第一个参数是this指向，从第二个参数开始接受的参数列表。区别在与bind方法返回值是函数以及bind接受到的参数列表，bind方法不会立刻执行，而是返回了一个改变上下文this的函数，原函数不变化
+  
 ```js
 // 使用例子
 const obj = {
@@ -971,15 +1059,14 @@ function copyObj(obj) {
   return Object.assign({}, obj);
 }
 
-// 实现一个基本的深拷贝
 function deepCopy(obj) {
+  if (!obj || typeof obj === 'string') {
+    return obj
+  }
   let target = obj instanceof Array ? [] : {};
   for (let key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      target[key] = typeof obj[key] === 'object' ? deepCopy(obj[key]) : obj[key]
-    }
+    target[key] = typeof obj[key] === 'object' ? deepCopy(obj[key]) : obj[key];
   }
-  
   return target;
 }
 ```
