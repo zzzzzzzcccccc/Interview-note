@@ -3,12 +3,12 @@
  * 绑定key一定要唯一，这样在修改数据的时候才能驱动虚拟dom更新
  * 某些情况下不绑定key在修改数据后dom渲染的速度是比加key要快的(dom结构必须简单)，这种就是diff的<font color="red">就地复用</font>所以比加key要快
  * 一般是要加key，在vue里不加key只有黄字警告，但是在react的diff和vue的diff稍有区别，react循环渲染key是必须要加，不然在某一些情况下setState了数据视图没有更新
- 
+
 ## 2.['1', '2', '3'].map(parseInt) 执行后是输出什么，为什么输出这个?
 
 * map函数式回调形式返回参数一共有三个参数：value, index, array 当前值 当前下标 当前遍历的数组
 * parentInt是内置函数一共有两个参数: string radix 需要转化成整形的值 需要返回的进制数
-  
+
 ```js
   parseInt('1', 0); // 0 默认是10进制所以返回 1
   parseInt('2', 1); // 1 是1进制最大值为1 无法计算返回 NaN
@@ -34,7 +34,7 @@ function debounce(fn, time) {
 ```
 
 * 节流: 动作绑定事件，在规定时间内不管事件怎么触发，事件始终执行一次
-  
+
 ```js
 function throtte(fn, time) {
   let activeTime = 0;
@@ -66,7 +66,7 @@ function throtte(fn, time) {
 ## 5.深度优先遍历、广度优先遍历
 
 * 深度优先遍历：假设某视图未被访问，则从某一个顶点v出发，依次访问下去直到访问不到为止，然后再访问另外一个未被访问的顶点v，依次执行下去。（其实就是多个tree递归的集合）
-  
+
 * 广度优先遍历：假设某视图未被访问，则从某一个顶点v出发访问完毕后再寻找另外一个顶点v直到找不到顶点v为止，然后在访问第一个访问过的顶点v的下级顶点，依次循环下去。(多个tree都先遍历顶部，遍历完所有tree的顶部，再遍历所有的下级，依次循环下去)
 
 ## 6.ES5/ES6 的继承除了写法以外还有什么区别？
@@ -295,7 +295,7 @@ function formatArray1(realArray) {
     }
   }
   genArray(realArray);
-  
+
   return Array.from(new Set(nowArr)).sort((a, b) => a - b);
 }
 // 解法2 es6
@@ -313,7 +313,7 @@ function formatArray3(realArray) {
 function _new(fn, ...arg) {
   const obj = Object.create(fn.prototype);
   const ret = fn.apply(obj, arg);
-  
+
   return ret instanceof Object ? ret : obj;
 }
 ```
@@ -352,8 +352,8 @@ function _new(fn, ...arg) {
   2. 收到我是B, 请你等等我还有一些数据没有发给你
   3. 收到，我随时准备挂了
   4. 给你了，你可以挂了
-  
-## 13.React setState 笔试题，下面的代码输出什么？ 
+
+## 13.React setState 笔试题，下面的代码输出什么？
 ```js
 class Example extends React.Component {
     constructor() {
@@ -362,23 +362,23 @@ class Example extends React.Component {
         val: 0
       };
     }
-    
+
     componentDidMount() {
       this.setState({val: this.state.val + 1});
       console.log(this.state.val);    // 第 1 次 log
-  
+
       this.setState({val: this.state.val + 1});
       console.log(this.state.val);    // 第 2 次 log
-  
+
       setTimeout(() => {
         this.setState({val: this.state.val + 1});
         console.log(this.state.val);  // 第 3 次 log
-  
+
         this.setState({val: this.state.val + 1});
         console.log(this.state.val);  // 第 4 次 log
       }, 0);
     }
-  
+
     render() {
       return null;
     }
@@ -390,13 +390,13 @@ class Example extends React.Component {
 ```
 
 * 当react在执行setState时候，有一个全局变量isBatchingUpdates，当是true的时候会把setState值缓存到dirtyComponents中，所以前2次打印状态没有改变打印结果为0
-  
+
 * 又因为state状态合并所以同步打次执行代码中对setState执行合并为一次
-  
+
 * 等同步代码执行完毕时候isBatchingUpdates会变为false，所以setState会按顺序执行
-  
+
 * 故是打印4次，render函数只触发3次
-  
+
 * 为何setTimeout中的setState无法合并,React更新是基于Transaction(事物)的，Transaction就是给目标执行函数包裹一下，打上前置后置的hook，在执行前执行initialize hook，结束后再执行close hook，这样搭配isBatchUpdates这样布尔标识就可以实现一整个函数调用栈内多次setState全部入pending队列，结束后统一apply了。setTimeout这样方法执行脱离了Transaction，react控制不到所以就没发batch了
 
 ## 14.重绘和回流，如何优化它们
@@ -506,9 +506,9 @@ class Subject {
   constructor() {
     this.observers = [];
   }
-  
+
   addObserver = (obj) => this.observers.push(obj);
-  
+
   notify = () => {
     for (let obj of this.observers) {
       if (obj.update && typeof obj.update === 'function') {
@@ -544,21 +544,21 @@ class Publish {
   constructor() {
     this.topics = {};
   }
- 
+
   subscribe = (type, fn) => { // 订阅
     if (!this.topics[type]) {
       this.topics[type] = [];
     }
     this.topics[type].push(fn);
   };
-  
+
   doPublish = (type, ...args) => { // 发布指定类型的主题
     if(!this.topics[type]) {
       return;
     }
     for (let fn of this.topics[type]) {
       fn(args);
-    } 
+    }
   };
 }
 const publish = new Publish();
@@ -581,14 +581,14 @@ publish.doPublish(subA.type);
 function formatArray(arr1, arr2) {
   let formatArr2 = arr2.map(v => v + 3);
   let arr = [];
-  
+
   arr1.concat(formatArr2).sort().map(v => {
     if (v.indexOf('3') !== -1) {
       v = v.split('')[0]
     }
     arr.push(v);
   });
-  
+
   return arr;
 }
 ```
@@ -646,7 +646,7 @@ Number.prototype.add = function(num) {
   if (typeof num !== 'number' || isNaN(num)) {
     throw new Error(`must be num number`);
   }
-  
+
   return this + num;
 };
 
@@ -654,7 +654,7 @@ Number.prototype.minus = function(num) {
   if (typeof num !== 'number' || isNaN(num)) {
       throw new Error(`must be num number`);
   }
-  
+
   return this - n;
 };
 ```
@@ -675,7 +675,7 @@ function buddleSort(arr) {
       }
     }
   }
-  
+
   return array;
 }
 
@@ -684,14 +684,14 @@ function buddleSort1(arr) {
   const array = arr;
   const len = array.length;
   let isSort = true;
-  
+
   for (let i = 0; i < len - 1; i++) {
     for (let j = 0; j < i + 1; j++) {
       if (array[i] > array[j]) {
         let temp = array[i];
         array[i] = array[j];
         array[j] = temp;
-        
+
         isSort = false;
       }
     }
@@ -699,7 +699,7 @@ function buddleSort1(arr) {
       break;
     }
   }
-  
+
   return array;
 }
 ```
@@ -719,15 +719,15 @@ function format(obj) {
 LazyMan('Tony');
 
 > // Hi I am Tony
-  
+
 LazyMan('Tony').sleep(10).eat('lunch');
 
 > // Hi I am Tony
-  
+
 > // 等待了10秒...
-  
+
 > // I am eating lunch
-  
+
 LazyMan('Tony').eat('lunch').sleep(10).eat('dinner');
 
 > // Hi I am Tony
@@ -737,19 +737,19 @@ LazyMan('Tony').eat('lunch').sleep(10).eat('dinner');
 > // 等待了10秒...
 
 > // I am eating diner
-  
+
 LazyMan('Tony').eat('lunch').eat('dinner').sleepFirst(5).sleep(10).eat('junk food');
 
 >  // Hi I am Tony
-  
+
 >  // 等待了5秒...
-  
+
 >  // I am eating lunch
-  
+
 >  // I am eating dinner
-  
+
 >  // 等待了10秒...
-  
+
 >  // I am eating junk food
 ```js
   class LazyMan {
@@ -817,25 +817,25 @@ LazyMan('Tony').eat('lunch').eat('dinner').sleepFirst(5).sleep(10).eat('junk foo
 
 ```js
 // example 1
-var a={}, b='123', c=123;  
+var a={}, b='123', c=123;
 a[b]='b';
-a[c]='c';  
+a[c]='c';
 console.log(a[b]);
 ```
 
 ```js
 // example 2
-var a={}, b=Symbol('123'), c=Symbol('123');  
+var a={}, b=Symbol('123'), c=Symbol('123');
 a[b]='b';
-a[c]='c';  
+a[c]='c';
 console.log(a[b]);
 ```
 
 ```js
 // example 3
-var a={}, b={key:'123'}, c={key:'456'};  
+var a={}, b={key:'123'}, c={key:'456'};
 a[b]='b';
-a[c]='c';  
+a[c]='c';
 console.log(a[b]);
 ```
 
@@ -920,14 +920,14 @@ class _Promise {
   _promiseLike = (data) => {
     return data instanceof _Promise || (['function', 'object'].indexOf(typeof data) > -1 && 'then' in data);
   }
-  
+
   resolve = (value) => {
     if (this._promiseLike(value)) {
       return value;
     }
     return new _Promise((resolve) => resolve(value));
   }
-  
+
   reject = (reason) => {
     if (this._promiseLike(reason)) {
       return reason;
@@ -955,7 +955,7 @@ class _Promise {
 ## 26.call,apply,bind的区别如何实现它们
 
 * call方法第一个参数是要绑定this的值，后面传入是一个参数列表。当地一个参数为null,undefined时候默认指向window
-  
+
 ```js
 // 一个简单的使用例子
 const obj = {
@@ -971,18 +971,18 @@ Function.prototype._call = function(context) {
   if (typeof this !== 'function') {
     throw new TypeError('not funciton')
   }
-  
+
   const ctx = context || window; // 若给null undefined则指向window
-  
+
   ctx.fn = this; // 重新绑定this
-  
+
   const args = [...arguments].slice(1); // 获取方法里传递的所有参数,第0个除外
-  
+
   const res = ctx.fn(...args);
-  
+
   // 删除改方法，不然会污染被调用的对象
   delete ctx.fn;
-  
+
   return res;
 }
 ```
@@ -1004,21 +1004,21 @@ Function.prototype._apply = function(context) {
   if (typeof this !== 'function') {
     throw new TypeError('not funciton')
   }
-    
+
   const ctx = context || window;
-  
+
   ctx.fn = this;
-  
+
   const res = arguments[1] ? ctx.fn(arguments[1]) : ctx.fn();
-  
+
   delete ctx.fn;
-  
+
   return res;
 }
 ```
 
 * bind和call非常相似，第一个参数是this指向，从第二个参数开始接受的参数列表。区别在与bind方法返回值是函数以及bind接受到的参数列表，bind方法不会立刻执行，而是返回了一个改变上下文this的函数，原函数不变化
-  
+
 ```js
 // 使用例子
 const obj = {
@@ -1035,10 +1035,10 @@ Function.prototype._bind = function(context) {
   if (typeof this !== 'function') {
     throw new TypeError('not funciton')
   }
-  
+
   let that = this;
   let args = [...arguments].slice(1);
-  
+
   return function _F() {
     if (this instanceof _F) {   // 处理函数使用new的情况
       return new that(...args, ...arguments)
@@ -1107,20 +1107,20 @@ import React, { useState } from 'react'
 const useRandomColor = (colors=[], initialColor='#fff') => {
   const lenColor = colors.length;
   const [color, setColor] = useState(initialColor);
-  
+
   const changeColor = () => {
     const index = Math.floor(Math.random() * lenColor);
     const activeColor = colors[index];
     setColor(activeColor);
   };
- 
+
   return [color, changeColor]
 };
 
 const colorBanner = () => {
   const colors = ['red', 'blue', 'green'];
   const [color, changeColor] = useRandomColor(colors, 'red');
-  
+
   return(
      <div style={{ textAlign: 'center', padding: '20px 0', backgroundColor: color }}>
        <h2>点击更换背景色</h2>
@@ -1135,7 +1135,7 @@ const colorBanner = () => {
 
 ```js
 /**
-* @param {number} number     被次方数 
+* @param {number} number     被次方数
 * @param {number} powNumber  次方数
 */
 const mathPow = (number, powNumber) => number ** powNumber
@@ -1213,13 +1213,13 @@ function fb(n) {
 ## 34.React 项目中有哪些细节可以优化？实际开发中都做过哪些性能优化
 
 * 父级改变props后导致子组件里的嵌套的子组件收到影响也触发render导致性能问题，可使用PureComponent或者hook的React.memo进行组件优化，若需要深度优化可以使用react生命周期里的ShouldComponentUpdate进行部分字段return false 优化
-  
+
 * 尽量不要使用index当key导致diff算法失效
-  
+
 * 减少标签树层级，可使用数组组件或Fragments
-  
+
 * 使用redux或mobx这种状态库更新数据时候尽量不要全局更新导致多处组件触发render可使用immediate-helper库进行数据更新
-  
+
 * 不要在render函数中处理数据
 
 ## 35.实现add(1)(2)(3)
@@ -1337,7 +1337,7 @@ function _sqrt(n) {
 
 ```js
 function getWindowHeight() {
-  return window.innerHeight || 
+  return window.innerHeight ||
     document.documentElement.clientHeight ||
     document.body.clientHeight;
 }
@@ -1354,7 +1354,7 @@ let count = 0;
 function lazyLoad(imgs) {
   const delta = 30;
   const winH = getWindowHeight();
-  const scrollTop = document.documentElement.scrollTop || 
+  const scrollTop = document.documentElement.scrollTop ||
     document.body.scrollTop;
   for (let i = 0; i < imgs.length; i++) {
     if (winH + scrollTop + delta > (getTop(imgs[i]) && getTop(imgs[i]) + imgs[i].offsetHeight + delta > scrollTop)) {
@@ -1367,7 +1367,7 @@ function lazyLoad(imgs) {
         window.removeEventListener('load', handler);
       }
     }
-  }  
+  }
 }
 
 function handler() {
@@ -1382,9 +1382,9 @@ window.removeEventListener('load', handler);
 ### 完整版
 
 * 查看硬盘hosts文件是否有对应域名隐射，如果有则直接返回
-  
+
 * 根据输入域名向DNS查询IP地址
-  
+
 * 得到地址后，建立连接，进行三次握手
   1.客户端：我要连接你了可以吗？
   2.服务端：嗯，我准备好，连接我吧。
@@ -1395,15 +1395,15 @@ window.removeEventListener('load', handler);
 * 服务器在80端口请求，传递相应内容到浏览器
 
 * 浏览器根据返回内容进行解析，并继续搜索页面是否有请求，有的话继续通过IP地址发送到服务器
-  
+
 * 接收完从服务器至浏览器的内容后，浏览器渲染页面，把内容呈现出来
-  
+
 * 客户端和服务端断开连接，进行第四次挥手
 
 ### 简单版
 
 * DNS解析
-  
+
 * TCP连接
 
 * 发送HTTP请求
@@ -1412,8 +1412,8 @@ window.removeEventListener('load', handler);
 
 * 浏览器解析内容渲染页面
 
-* 连接结束  
-  
+* 连接结束
+
 ## 40.性能优化
 
 * 使用打包工具压缩代码
@@ -1425,7 +1425,7 @@ window.removeEventListener('load', handler);
 * js gzip
 
 * 使用服务器渲染(SSR)
-  
+
 * 非必要执行的js文件可以标签加上async或defer来延迟加载
 
 * 骨架屏
@@ -1435,7 +1435,7 @@ window.removeEventListener('load', handler);
 * css选择器复杂性降低
 
 * dom结构复杂性降低
-  
+
 ## 41.Vue中computed和methods区别
 
 * computed内部变量不会发生变化的时候都只会执行一次，会有缓存。methods每次调用都会执行没有缓存
@@ -1444,7 +1444,7 @@ window.removeEventListener('load', handler);
 
 * 调用方式不一样，computed定义成员像属性一样访问，methods定义成员必须函数形式调用
 
-* computed中成员可以只定义个函数作为制度属性，也可以定义set get变成可读写属性，这点methods不行 
+* computed中成员可以只定义个函数作为制度属性，也可以定义set get变成可读写属性，这点methods不行
 
 ## 42.获取url中的参数，1. 指定参数名称，返回该参数的值 或者 空字符串，2. 不指定参数名称，返回全部的参数对象 或者 {}，3. 如果存在多个同名参数，则返回数组
 
@@ -1454,8 +1454,8 @@ function getUrlParam(sUrl, sKey) {
     return "";
   }
   let params = {};
-  let paramsArr = sUrl.indexOf('#') > -1 ? 
-    sUrl.split('?')[1].split('#')[0].split('&') : 
+  let paramsArr = sUrl.indexOf('#') > -1 ?
+    sUrl.split('?')[1].split('#')[0].split('&') :
     sUrl.split('?')[1].split('&');
 
   for (let i = 0; i < paramsArr.length; i++) {
@@ -1466,7 +1466,7 @@ function getUrlParam(sUrl, sKey) {
     } else {
       params[key] = val;
     }
-  } 
+  }
 
   return sKey ? params[sKey] || "" : params;
 }
@@ -1479,11 +1479,11 @@ function getUrlParam(sUrl, sKey) {
 * entry 入口文件
 
 * module 模块，在webpack中一个模块对应一个文件。webpack会从entry开始，递归找出所有依赖模块
-  
+
 * chunk 代码块，一个chunk由多个模块组成，用于代码合并与分割
-  
+
 * loader 模块转换器，用于将模块原内容按照要求转换成新内容
-  
+
 * plugin 拓展插件，在webpack构建流程中特定实际会广播时间，插件可以监听这些事件，用于开发一些定制化编译
 
 ### webpack从启动到结束一次执行顺序下
@@ -1491,19 +1491,19 @@ function getUrlParam(sUrl, sKey) {
 ![](./lib/image/5.png)
 
 * 初始化参数：从配置文件（默认webpack.config.js）和shell语句中读取合并参数，得出最终参数
-  
+
 * 开始编译：用上一步的配置参数初始化Comiler对象，加载所有配置插件，通过执行run方法开始编译
 
 * 确定入口：根据配置中entry找出所有入口文件
 
 * 编译模块：从入口文件出发，调用所有配置的loader对模块进行翻译，再找出改模块依赖的模块，再递归本步骤进行翻译
-  
+
 * 完成编译模块：经过上一步后，得到了每个模块被翻译后的最终内容和之间的依赖关系
-  
+
 * 输出资源：根据入口和模块执行依赖关系，组成一个个包含多个模块chunk，再将每个chunk转换成单独的文件加入输出列表中，这是可以修改内容的最后机会
-  
+
 * 输出完成：在确定好输出内容，根据配置（webpack.config.js && shell）确定出书的路径和文件名，将文件的内容写入文件系统中（nodejs fs模块进行）
-  
+
 * 在上述过程中，webpack会在特定的时间广播特定事件，插件监听事件并执行相应的逻辑，并且插件可以调用webpack提供的api改变webpack的运行结果
 
 ## 44.css各种选择器的权重
@@ -1521,41 +1521,41 @@ function getUrlParam(sUrl, sKey) {
 ### 浏览器缓存机制
 
 * 浏览器发起HTTP请求 - 服务器响应请求。浏览器第一次向服务器发起请求结果后拿到请求结果，会根据响应报文中HTTP头的缓存标识，决定是否缓存，若是则将请求结果缓存到浏览器中
-  
+
 ### 强缓存
 
 * 向浏览器缓存查找请求结果，并根据该结果的缓存规则来决定是否使用缓存结果过程
 
 * 强制缓存失效，则直接想服务器发起请求
-  
+
 * 存在缓存标识，但是结果已失效，则使用协商缓存
 
 * 存在缓存标识，结果还没有失效，则生效，直接返回结果（典型就是ie浏览器的get请求请求标头的Expires和Cache-Control,后者比前者高）
-  
+
 ### 协商缓存
 
 * 协商缓存就是强制缓存失效后，浏览器携带缓存标识向服务器发起请求，有由服务根据协商缓存标头是否使用缓存的过程
 
 * 协商缓存生效则http code返回304
-  
+
 * 协商缓存失败则http code返回200
-  
+
 * 协商缓存标头Last-Modified / If-Modified-Since和Etag / If-None-Match, 其中Etag / If-None-Match的优先级比Last-Modified / If-Modified-Since高
 
 ## 47.JavaScript作用域
 
 * 局部作用域
-  
+
 * 全局作用域
-  
+
 * 白话说就是里面能访问外面，外面不能访问到里面
-  
+
 ## 48.new一个对象的过程
 
 * 创建一个新对象
-  
+
 * 将构造函数的作用域值赋值给新对象
-  
+
 * 执行构造函数中的代码
 
 * 返回新对象
@@ -1587,7 +1587,7 @@ function _new(constructor, ...args) {
 ## 50.从prototype、隐式__proto__、constructor再到修改原型链内容导致的影响
 
 * 修改构造函数的原型，影响已创建的实例
-  
+
 ```js
 Foo.prototype.name = 'hello';
 ```
@@ -1701,17 +1701,17 @@ netstat -anp |grep 端口
 ## 56.mobx与redux区别
 
 * redux是Store -> View -> Action，mobx只关心Store -> View
-  
+
 * mobx的数据依赖始终保持最小颗粒，而且基于运行时。redux，可能一不小心就是多订阅或少订阅了数据，所以为了提升性能，往往需要PureRenderMixin 以及 reselect 对 selector 做缓存
 
 * OOP方式在某些场景下比较方便，尤其是容易抽取domain model的时候。进而由于mobx支持音容方式引入数据，所以可以非常容易形成模型图，这样可以更好的理解我们的应用
 
 * mobx是基于原生JavaScript对象、数组、和Class实现。所以修改数据不需要额外的语法成本，也不需要使用返回一个新的数据，而是直接操作数据
-  
+
 * redux将数据保存在单一store中，mobx将数据保存分散在多个store
 
 * redux使用不可变状态，不能直接修改，而是返回一个新状态，mobx状态可变，可以直接修改
-  
+
 * mobx比较简单，mobx更多使用面向对象编程思维，redux比较复杂，使用函数式编程思维掌握起来不容易，同时需要借助一系列中间件来处理异步和副作用
 
 * mobx中有更多的抽象和封装，调试比较困难同时结果难以预测；而redux提供能够进行时间回溯的开发工具，同时其纯函数以及更少的抽象，让调试变得更加容易
@@ -1750,7 +1750,7 @@ axios.interceptors.response.use(response => {
 * react Diff整体策略是 Tree Diff / Component Diff / Element Diff
 
 * Tree Diff React对树的算法进行简洁明了的优化，即对树进行分层比较，两棵树智慧相对同层进行节点比较
-  
+
 ![](./lib/image/6.png)
 
 ```js
@@ -1774,7 +1774,7 @@ updateChildren: function(nextNestedChildrenElements, transaction, context) {
 ```
 
 * React是基于组件构建应用的，对于组件间的比较采取的策略也是简洁高效
-  
+
   1.对于同一类型的组件，按照原策略继续比较Virtual DOM tree
 
   2.如果不是，则将组件判断未dirty component，从而替换整个组件下所有节点
@@ -1782,7 +1782,7 @@ updateChildren: function(nextNestedChildrenElements, transaction, context) {
   3.对于同一类型的组件，有可能Virtual DOM没有任何变化，如果能够确切之恶道这个那可以节点省大量的diff运算时间，因此React允许用户通过shouldComponentUpdate()来判断该组件是否需要diff
 
 * 当节点处于同一级是，React diff提供三种节点操作，分别是INSERT_MARKUP(插入),MOVE_EXISTING(移动),REMOVE_NODE(删除)
-  
+
    1.INSERT_MARKUP,新的component类型不在老集合里，即全新的节点，需要对新节点执行插入操作
 
    2.MOVE_EXISTING,在老集合有新component类型，切element是可以更新类型就会做此操作
@@ -1842,3 +1842,83 @@ function enqueueRemove(parentInst, fromIndex) {
 * 可以干预事件的分发。V16引入Fiber架构，React可以通过干预事件分发优化用户交互体验
 
 ![](./lib/image/7.png)
+
+## 60.谈谈对React Hooks的理解
+
+### useState / useReducer
+
+* 它们都是关于状态值的提取和更新，从本质上来说是没有区别的，从代码层面上来讲useState是useReducer的一个简化版本
+
+* React官方文档有提到，React Hooks保存状态是和类组件一个原理，类组件和hook组件状态值都会被挂载在组件实例对象FiberNode和memoizedState属性中
+
+* 但是类组件和hook组件保存状态的数据结构不同。类组件是直接把state属性中挂载的这个开发者自定义的对象保存到memoizedState属性中；而Hooks是 用链表来保存状态的，memoizedState属性的实质上是这个链表的头指针
+
+```ts
+// Hook对象
+// react-reconciler/src/ReactFiberHooks.js
+export type Hook = {
+  memoizedState: any; // 最新的状态
+  baseState: any; // 初始状态
+  baseUpdate: Update<any, any> | null;
+  queue: UpdateQueue<any, any> | null; // 临时保存对状态值的操作，准确来说是一个链表数据结构中的指针
+  next: Hook | null; // 指向下一个链表节点
+}
+```
+
+* 官方文档一直强调React Hooks的调用只能放在函数组件、自定义Hooks函数体的顶层，这是引文我们只能通过Hooks的调用顺序来与实际保存数据的结果关联
+
+![](./lib/image/8.png)
+
+* 而且这种链表保存状态数据结构实际上是所有的React Hooks都是用这种链表方式来保存的
+
+* 那么useState返回的这个用来更新状态的函数，运行原理是怎样的呢？
+
+* 当每次调用useState调用函数时候，并不会立刻对状态值进行修改，而是React内部是创建一条修改操作，在对应的Hook对象的queue的属性挂载的连表上加一个新节点
+
+![](./lib/image/9.png)
+
+* 在下次执行函数组件时，再调调用useState时，React才会根据每个Hook上挂载的更新操作的链表来计算最新的状态值，为何要这样只执行一次更新操作呢，建如下
+
+```js
+const [str, setStr] = useState('');
+setStr = (str) => str + 'a';
+setStr = (str) => str + 'b';
+setStr = (str) => str + 'c';
+
+// 下次再执行就可以得到name最新状态值为abc
+```
+
+### useEffect
+
+* useEffect的保存方式与useState/useReducer类似，也是已链表的形式挂载在FiberNode.updateQueue中
+
+> mount钩子:mountEffect
+
+```js
+const effect: Effect = {
+  tag, // 用来标识依赖项有没有变动
+  create, // 用户使用useEffect传入的函数体
+  destroy, // 上述函数体执行后生成的用来清除副作用的函数
+  deps, // 依赖项列表
+  next: (null: any),
+};
+```
+
+* 组件渲染完成后，链表执行
+
+> update钩子:updateEffect
+
+* 在依次调用useEffect时，判断吃屎传入的依赖列表，与链表节点Effect.deps中的保存的是否一致，如果一致，则在Effect.tag上标记上NoHookEffect
+
+> 执行阶段
+
+* 在每次组件渲染完成后，就会进入useEffect执行阶段commitHookEffectList()
+
+  1.遍历链表
+
+  2.如果遇到Effect.tag标记上NoHookEffect的节点则跳过
+
+  3.如果Effect.destroy为函数类型，则需要执行清除副作用函数
+
+  4.执行Effect.create，并将执行结果保存到Effect.destroy，注意由于闭包的缘故，Effect.destroy实际上可以访问到本次Effect.create的函数作用域内的变量
+
