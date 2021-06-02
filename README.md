@@ -1651,7 +1651,7 @@ function arrSearch(arr, n) {
 
     if (arr[center] === n) return center; // 相等返回下标
     else if (arr[center] > n) right = center - 1; // 中位数比目标数大右侧下标减1继续递归
-    else left = center + 1; // 佛则从左侧下标加1递归
+    else left = center + 1; // 否则从左侧下标加1递归
   }
   return -1;
 }
@@ -1687,7 +1687,7 @@ netstat -anp |grep 端口
 
 ## 55.css实现三角形
 
-```js
+```css
 .triangle{
   width: 0;
   height: 0;
@@ -1922,3 +1922,40 @@ const effect: Effect = {
 
   4.执行Effect.create，并将执行结果保存到Effect.destroy，注意由于闭包的缘故，Effect.destroy实际上可以访问到本次Effect.create的函数作用域内的变量
 
+## 61.最高利润购买股票，股票价格已数组方式储存，例如[5, 1, 7, 2, 3]代表某一个股票每天的价格，第2天1块钱买入，第3天7块钱卖出，故得到利润 7 - 1 = 6块钱，股票只可以持有一股，你可以隔天后不交易也可以交易，请设计一个算法让利润最大化
+
+```typescript
+function setMaxPrice(nums: number[]): number {
+  let maxPrice = 0;
+  for (let i = 1; i < nums.length; i++) {
+    if (nums[i] > nums[i - 1]) {
+      maxPrice += nums[i] - nums[i - 1];
+    }
+  }
+  return maxPrice
+}
+```
+
+## 62.给任意一个数组，让数组向右移动k次，例如[1, 2, 3, 4, 5]向右移动2次后则为[3, 4, 5, 1, 2]，请设计一个算法实现他
+
+```typescript
+function reverse(nums: any[], start: number, end: number) {
+  while(start > end) {
+    const temp = nums[start];
+    nums[start] = nums[end];
+    nums[end] = temp;
+    start++;
+    end--;
+  }
+}
+
+function rotateArray(nums: any[], k: number): any[] {
+  k %= nums.length;
+
+  reverse(nums, 0, nums.length - 1);
+  reverse(nums, 0, k - 1);
+  reverse(nums, k, nums.length - 1);
+
+  return nums;
+}
+```
