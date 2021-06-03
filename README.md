@@ -1987,3 +1987,16 @@ function intersect(nums1: number[], nums2: number[]): number[] {
   return templArr.sort((a, b) => a - b);
 }
 ```
+
+## 64.给定一个数组 nums，编写一个函数将所有 0 移动到数组的末尾，同时保持非零元素的相对顺序。例如 [0, 1, 0, 3, 12] 输出 [1, 3, 12, 0, 0] 必须在元数组上操作，不可额外产生数组
+
+```typescript
+function moveZeroArr(nums: number[]): void {
+  for (let i = nums.length - 1; i >= 0; i--) {
+    if (nums[i] === 0) {
+      nums.splice(i, 1);
+      nums.push(0);
+    }
+  }
+}
+```
