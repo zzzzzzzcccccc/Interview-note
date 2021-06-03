@@ -1957,3 +1957,33 @@ function rotateArray(nums: any[], k: number): any[] {
   return nums;
 }
 ```
+
+## 63.给定两个数组，编写一个函数来计算它们的交集。例如 nums1 = [1, 2, 2, 1]; nums2 = [2, 2]; 则它们的交集是[2, 2]; 例如 nums1 = [4, 9, 5]; nums2 = [9, 4, 9, 8, 4]; 则它们交集是[4, 9]
+
+```typescript
+function intersect(nums1: number[], nums2: number[]): number[] {
+  let map: { [field: number]: number } = {};
+  let templArr = [];
+  let tempIndex = 0;
+
+  for (let i = 0; i < nums1.length; i++) {
+    let num = nums1[i]
+    if (num in map) {
+      map[num]++;
+    } else {
+      map[num] = 1;
+    }
+  }
+
+  for (let i = 0; i < nums2.length; i++) {
+    let num = nums2[i];
+    if (num in map && map[num] > 0) {
+      tempArr[tempIndex] = num;
+      tempIndex++;
+      map[num]--;
+    }
+  }
+
+  return templArr.sort((a, b) => a - b);
+}
+```
