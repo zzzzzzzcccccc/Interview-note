@@ -1060,12 +1060,23 @@ function copyObj(obj) {
 }
 
 function deepCopy(obj) {
-  if (!obj || typeof obj === 'string') {
+  if (!obj) {
     return obj
   }
-  let target = obj instanceof Array ? [] : {};
-  for (let key in obj) {
-    target[key] = typeof obj[key] === 'object' ? deepCopy(obj[key]) : obj[key];
+  const type = typeof obj
+  if (type === 'string' || type === 'number') {
+    return obj
+  }
+  const isArray = obj instanceof Array;
+  let target = isArray ? [] : {};
+  if (isArray) {
+    for (let i = 0; i < obj.length; i++) {
+      target.push(deepCopy(obj[i]))
+    } 
+  } else {
+    for (let key in obj) {
+      target[key] = typeof obj[key] === 'object' ? deepCopy(obj[key]) : obj[key];
+    }
   }
   return target;
 }
