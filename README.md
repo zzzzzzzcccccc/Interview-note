@@ -1937,13 +1937,14 @@ const effect: Effect = {
 
 ```typescript
 function setMaxPrice(nums: number[]): number {
-  let maxPrice = 0;
-  for (let i = 1; i < nums.length; i++) {
-    if (nums[i] > nums[i - 1]) {
-      maxPrice += nums[i] - nums[i - 1];
-    }
+  const len = nums.length;
+  if (len === 0) return 0;
+  let max = 0, min = nums[0]
+  for (let i = 1; i < len; i++) {
+     min = Math.min(min, nums[i])
+     max = Math.max(max, nums[i] - min)
   }
-  return maxPrice
+  return max;
 }
 ```
 
